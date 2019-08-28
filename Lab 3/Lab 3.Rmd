@@ -1,0 +1,89 @@
+---
+title: "Info 371 Lab 3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Linear Regression
+
+This lab is about linear regression, dummy variables, and interaction eects. In many ways this is about feature engineering and related interpretation.
+
+This lab is based on World Value Survey data (see http://www.worldvaluesurvey.org/wvs.jsp), in particular on a small subset of the 6th wave of the survey for the US (collected in 2011) and China (2013).
+
+Our task in this lab is to estimate which factors influence choice: how much freedom people think they have in their life, and more importantly, to interpret the results.
+
+
+### Gender and Country
+
+First, let's take very simple look and estimate a linear regression model where freedom of choice depends on the country. Note that a larger number of freedom means the respondents feel they are more free in their decisions.
+
+``` {r echo=FALSE}
+wvs <- read.delim("wvs.csv.bz2")
+
+m <- lm(choice ~ country, data=wvs)
+summary(m)
+```
+
+Chinese citizens reported: 7.15841
+American citizens reported: 7.76369
+
+Linear regression formula: 
+**Choice = 7.15841 + 0.60528.US**
+
+American respondents feel more free in their choices than Chinese respondents by **0.60528**. The measurement unit is numeric scale between 1 and 10 with 1 = "no choice at all", 10 = "a great deal of choice."
+
+Multiple R-squared: 0.02495 
+
+R^2 tells us how much variation in DV can be explained by the different levels of the IV (e.g., China and US). We can conclude that *country* does not correlate much with *choice*.
+
+
+
+### Sex and Country
+
+``` {r echo=FALSE}
+m2 <- lm(choice ~ sex + country, data=wvs)
+summary(m2)
+```
+
+
+Linear regression formula: 
+
+**Choice = 7.18674 + (-0.05748.Male) + 0.60473.US**
+
+
+Based on our estimations, lets find the level of choice freedom for...
+
+1. American men: `r 7.18674 + 0.60473 - 0.05748`
+2. American women: `r 7.18674 + 0.60473`
+3. Chinese men: `r 7.18674 - 0.05748`
+4. Chinese women: `r 7.18674`
+
+
+### Now add interaction: sex x country
+
+Now let's add the interaction effect, sex x country. If sex and country are numbers, it amounts to just adding a product of these two. In our case these are categorical variables, automatically transformed to dummies by R (and by statsmodels.formula.api in python, and many other software too). The standard R-style formula uses asterisk, the multiplication operator, *, to denote interaction.
+
+``` {r echo=FALSE}
+m3 <- lm(choice ~ sex * country, data = wvs)
+summary(m3)
+```
+
+
+
+Linear regression formula:
+
+**Choice = 7.058 + 0.85302.US + 0.20366.Male -0.50857.US.Male**
+
+Based on our estimations, lets find the level of choice freedom for...
+
+1. American men: `r 7.058 + 0.85302 + 0.20366 - 0.50857`
+2. American women: `r 7.05803 + 0.85302`
+3. Chinese men: `r 7.05803 + 0.20466`
+4. Chinese women: `r 7.05803`
+
+Looking at our estimations, we can observe that *in the US, women have a slightly higher level of choice freedom than men, while in China, women have a slightly lower level of choice freedom.*
+
+

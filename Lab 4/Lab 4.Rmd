@@ -1,0 +1,125 @@
+---
+title: "Info 371 Lab 4"
+author: "Yasmine Hejazi"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(knitr)
+```
+
+## 1 Was Montana Meth Prevention Effective?
+
+In 2005-2007, Montana conducted an aggressive ad campaign to decrease the meth abuse by the youth. We will analyze the efficacy of the campaign using Youth Risk Behavior Survey (YRBS) data. We will do this by implementing:  a) cross-sectional estimator; b) before- after estimator; c) differences-in-differences (DiD) estimator. The full data and documentation can be obtained from https://www.cdc.gov/healthyyouth/data/yrbs/data.htm.
+
+```{r}
+yrbs <- read.delim("yrbs.tsv")
+yrbs$before <- yrbs$year < 2006
+```
+
+## 2 Before-After Estimator
+
+If the campaign had any effect, it should have decreased the amphetamine use in Montana. Let's compare the meth use (mean value) in Montana before and after the campaign. In each case, let's interpret the most important outcomes, and compare the results for all three approaches.
+
+First, let's present it as a simple table.
+
+```{r echo=FALSE}
+simple <- yrbs %>% 
+  group_by(before) %>%
+  summarize(avg_meth_use = mean(meth))
+
+kable(simple)
+
+```
+
+Next, let's do it using regression without any other controls (no age, sex, tv), focusing on Montana.
+
+```{r echo=FALSE}
+ba_m <- lm(meth ~ before, data = subset(yrbs, state == "MT"))
+summary(ba_m)
+
+```
+
+Next, let's do it using regression *with* other controls (no age, sex, tv), focusing on Montana.
+
+```{r echo=FALSE}
+ba_m2 <- lm(meth ~ before + age + sex + tv, data = subset(yrbs, state == "MT"))
+summary(ba_m2)
+
+```
+
+In the first approach, we can easily identify through means that the average meth use decreased from before program to after program by **0.02351**. The second approach gives us more insight to how significant the *before* variable is. A t value of 8.225 shows that this is very significant. After the program has a lower estimate of meth usage than before the program by **0.038619**. Finally, we can introduce other controls to gain even more insight in factors that affect meth usage. We see similarly that after the program has a lower estimate than before by **0.038590**, and another significant variable is age, with a t value of 4.953.
+
+## 3 Cross-Sectional Estimator
+
+Alternatively, if the project had an effect, Montana should have lower rate of meth use afterwards. Now compare the meth use (mean value) in Montana and nationally after the project. Let's interpret the most important outcomes, and compare the results for all three approaches. 
+
+Do it as a simple table: compare the average *post-project* meth use in MT and nationally.
+
+```{r echo=FALSE}
+simple2 <- yrbs %>% 
+  group_by(state) %>%
+  filter(before == FALSE) %>%
+  summarize(avg_meth_use = mean(meth))
+
+kable(simple2)
+
+```
+
+Do it using regression without any other controls.
+
+```{r echo=FALSE}
+cs_m <- lm(meth ~ state, data = yrbs %>% filter(before == FALSE))
+summary(cs_m)
+
+```
+
+Run a regression with full controls.
+
+```{r echo=FALSE}
+cs_m2 <- lm(meth ~ state + age + sex + tv, data = yrbs %>% filter(before == FALSE))
+summary(cs_m2)
+
+```
+
+
+In the first approach, we can easily identify through means that the average meth use for Montana is less than the national level by **0.00181**. The second approach gives us more insight to how significant the *state* variable is. A t value of 0.592 shows that *state* is not very significant. Montana has a lower estimate of meth usage than National by **0.00181**, very similar to the first approach. Finally, we can introduce other controls to gain even more insight in factors that affect meth usage by state. We see similarly that Montana has a lower estimate than National by **0.001516 **, but again is not significant. We see more significant factors of age (t=5.648) and sex (t=3.563) appear.
+
+## 4 Differences-in-Differences Estimator
+
+However, both the long-time trends and levels in meth use in Montana and elsewhere may be different. Now let's see how much more will meth use decline in Montana compared to the national average.Compare the differences in trends in meth use in Montana and nationally between pre-project and post-project years. In each case interpret the most important outcomes, and compare the results for all three approaches. 
+
+Do it as a simple table: report average use before and after the campaign in both Montana and nationally. Compute the effect by calculating the trend difference. 
+
+```{r echo=FALSE}
+simple3 <- yrbs %>% 
+  group_by(state, before) %>%
+  summarize(avg_meth_use = mean(meth))
+
+kable(simple3)
+
+```
+
+Do it using regression without any other controls.
+
+```{r echo=FALSE}
+dd_m <- lm(meth ~ state * before, data = yrbs)
+summary(dd_m)
+
+```
+
+Run a regression with full controls
+
+```{r echo=FALSE}
+dd_m2 <- lm(meth ~ state * before * age * sex * tv, data = yrbs)
+summary(dd_m2)
+
+```
+
+In the first approach, we see that in Montana, average meth use moves from **`r simple3[2, 3]`** to **`r simple3[1, 3]`** for before and after program time respectively, while in National, the average meth use moves from **`r simple3[4, 3]`** to **`r simple3[3, 3]`**. We see a much larger difference in Montana's change, where the average meth use started higher than National before program and ended less than National after program. The second approach gives us more insight to how significant the *state* and *before* variables are when crossed. *state* alone isn't significant, but *before* (t=8.674) and *before x state* (t=-3.733) shows a great significance in meth usage.
+
+

@@ -1,0 +1,342 @@
+---
+title: "Info 371 PS2"
+author: "Yasmine Hejazi"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(summarytools)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(ggplot2)
+```
+
+## Intro
+
+For this assignment, we will be using data from the Progresa program, a government social assistance program in Mexico. This program, as well as the details of its impact, are described in the paper "School subsidies for the poor: evaluating the Mexican Progresa poverty program", by Paul Shultz.
+
+
+```{r}
+data <- read.csv("progresa_sample.csv", stringsAsFactors = FALSE)
+```
+
+## Part 1 Descriptive Analysis
+
+### 1.1 Summary Statistics
+
+First, lets report summary statistics (mean, standard deviation, and number of missings) for all of the demographic variables in the dataset (i.e., everything except year, folnum, village). Present the actual levels for 'progressa' and 'poor'.
+
+
+```{r echo=FALSE}
+
+mydata <- descr(data, transpose = TRUE)[c(-1, -16, -17), 1:2]
+# get mean and sd
+t <- as.data.frame(mydata, keep.rownames = TRUE)
+# get NA count
+v <- data.frame(sapply(data, function(x) sum(is.na(x))))
+
+
+t <- t %>% rownames_to_column("Variables")
+v <- v %>% rownames_to_column("Variables")
+
+# merge them into one table
+result <- merge(t, v) %>% arrange(Variables)
+colnames(result)[4] <- "NAs"
+
+
+kable(result)
+
+```
+
+Here we see a table that summarizes the demographic variables in the dataset. `progressa` is a variable with values *basal* which means the student received the "treatment" or program, and *0* which means they did not. `poor` has the values *pobre* which means the student was defined as poor, and *no pobre* which means they were not poor.
+
+
+### 1.2 Differences at Baseline?
+
+Now let's investigate the differences in baseline. Are the baseline (1997) demographic characteristics for the poor different in treatment and control villages? 
+
+Let's use a t-Test to determine whether there is a statistically significant difference in the average values of each of the variables in the dataset. We will focus only on the data from 1997 for poor. I will justify removing NAs from the analysis with the fact that a key variable interest that is used to measure enrollment rate, *sc*, has 8453 NA values. Removing those NAs and their corresponding grc NAs will allow us to measure the data that is most relevant to us.
+
+```{r echo=FALSE}
+baseline_poor <- data %>%
+  filter(poor == "pobre", year == 97) %>%
+  na.omit()
+
+base_treated <- baseline_poor %>% filter(progresa == 'basal')
+base_untreated <- baseline_poor %>% filter(progresa == 0)
+
+# Grab summary stats for treated and untreated
+d <- descr(base_treated, transpose = TRUE)[c(-1, -16, -17), 1:2] %>% rownames_to_column("Variable name")
+f <- descr(base_untreated, transpose = TRUE)[c(-1, -16, -17), 1:2] %>% rownames_to_column("Variable name")
+
+colnames(d)[2] <- "Average value (treatment villages)"
+colnames(f)[2] <- "Average value (controlled villages)"
+
+# Get rid of sd
+d <- d[,1:2]
+f <- f[,1:2]
+
+df <- merge(d, f)
+df['Difference (Treat - Control)'] = df$`Average value (treatment villages)` - df$`Average value (controlled villages)`
+
+# Function that gets p value of 2 columns
+get_p <- function(var) {
+  t <- t.test(base_treated[var], base_untreated[var])
+  t['p.value']
+}
+
+# Get all the p values we want
+p_age <- get_p('age')
+p_dist_cap <- get_p('dist_cap')
+p_dist_sec <- get_p('dist_sec')
+p_fam_n <- get_p('fam_n')
+p_grc <- get_p('grc')
+p_grc97 <- get_p('grc97')
+p_hohage <- get_p('hohage')
+p_hohedu <- get_p('hohedu')
+p_hohsex <- get_p('hohsex')
+p_hohwag <- get_p('hohwag')
+p_indig <- get_p('indig')
+p_min_dist <- get_p('min_dist')
+p_sc <- get_p('sc')
+p_sc97 <- get_p('sc97')
+p_sex <- get_p('sex')
+p_welfare <- get_p('welfare_index')
+
+p_values <- c(p_age, p_dist_cap, p_dist_sec, p_fam_n, p_grc, p_grc97, p_hohage, p_hohedu, p_hohsex, 
+              p_hohwag, p_indig, p_min_dist, p_sc, p_sc97, p_sex, p_welfare)
+
+# Merge p-values in table
+p_value_df <- t(data.frame(p_values))
+df['p_value'] <- p_value_df
+
+kable(df)
+```
+
+### 1.3 Interpretation
+
+1. Are there statistically significant differences between treatment and control villages as baseline?
+2. Why does it matter if there are differences at baseline?
+3. What does this imply about how to measure the impact of the treatment?
+
+
+We see statistically significant differences between treatment and control villages as baseline where the p-value is < 0.05. We see this happening in *dist_cap*, *hohage*, *hohedu*, *hohwag*, *min_dist*, *sex*, and *welfare_index*. We should see if there are differences at baseline because it wouldn't be good if there was a big difference - this would mean that the randomly selected people who receive treatment didn't turn out so "random" where there are already differences showing, introducing bias, and we would therefore need to account or adjust for this. Measuring the impact of the treatment is difficult because the two groups won't be exactly the same - we will need to figure out how to account for these differences. 
+
+### 1.4 Graphical exploration, part 1
+
+For each level of household head education let's compute the average enrollment rate in 1997 and create a scatterplot that shows this relationship. We can observe that as Head of Household Education increases, average enrollment also increases, with an outlier where Head of Household Education = 20. Perhaps they are too good for school :^)
+
+```{r echo=FALSE}
+
+data1997_hoh <- data %>% filter(year == 97) %>%
+  select(hohedu, sc) %>%
+  group_by(hohedu) %>%
+  na.omit() %>%
+  summarise(mean = mean(sc))
+
+p <- ggplot(data1997_hoh, aes(x=hohedu, y=mean)) + geom_point(color = 'purple') +
+  geom_smooth(mapping = aes(x = hohedu, y = mean)) + 
+  labs(
+    title = "1997 Household Head Education vs Average Enrollment",
+    x = "Head of Household Education",
+    y = "Average Enrollment"
+  ) 
+
+p
+
+```
+
+
+### 1.5 Graphical exploration, part 2
+
+Create a histogram of village enrollment rates **among poor households in treated villages**, before and after treatment. Specifically, for each village, calculate the average rate of enrollment of poor households in treated villages in 1997, then compute the average rate of enrollment of poor households in treated villages in 1998. Create two separate histograms showing the distribution of these average enrollments rates, one histogram for 1997 and one histogram for 1998. On each histogram, draw a vertical line that intersects the x-axis at the average value (across all households). Does there appear to be a difference? Is this difference statistically significant?
+
+```{r echo=FALSE}
+# filter to 1997
+data1997_treated <- data %>% filter(year == 97, progresa == 'basal', poor == 'pobre') %>%
+  select(village, sc) %>%
+  group_by(village) %>%
+  na.omit() %>%
+  summarise(mean = mean(sc))
+
+ggplot(data1997_treated, aes(x=mean)) + geom_histogram(binwidth = 0.025, color = 'black') +
+  geom_vline(aes(xintercept=mean(mean)),
+            color="blue", size=1) +
+  labs(
+    title = "1997 Average Village Enrollment Rates",
+    x = "Average Enrollment Rate",
+    y = "# of Villages"
+  ) 
+
+```
+
+
+```{r echo=FALSE}
+# filter to 1998
+data1998_treated <- data %>% filter(year == 98, progresa == 'basal', poor == 'pobre') %>%
+  select(village, sc) %>%
+  group_by(village) %>%
+  na.omit() %>%
+  summarise(mean = mean(sc))
+
+ggplot(data1998_treated, aes(x=mean)) + geom_histogram(binwidth = 0.025, color = 'black') +
+  geom_vline(aes(xintercept=mean(mean)),
+            color="blue", size=1) +
+  labs(
+    title = "1998 Average Village Enrollment Rates",
+    x = "Average Enrollment Rate",
+    y = "# of Villages"
+  ) 
+
+```
+
+Let's perform a t test to see if the difference is statistically significant.
+
+```{r echo=FALSE}
+# find p-value
+ttest <- t.test(data1997_treated$mean, data1998_treated$mean)
+ttest
+```
+
+
+The average enrollment rate increases over time. We see this in a difference of mean from **`r round(mean(data1997_treated$mean), 4)`** in 1997 to **`r round(mean(data1998_treated$mean), 4)`** in 1998. A left-skew is shown in both histograms; the second histogram becomes more left-skewed, showing that enrollment rate increased in the year. We can conclude that the program is significant in average enrollment rate because we have a **p-value of `r ttest['p.value']`**, which is less than 0.05.
+
+
+## Part 2: Measuring Impact
+
+### 2.1 Cross-Sectional Estimator: T-test
+
+Begin by estimating the impact of Progresa using "simple differences." Restricting yourself to data from 1998 (after treatment), calculate the average enrollment rate among poor households in the Treatment villages and the average enrollment rate among poor households in the control villages. Use a t-test to determine if this difference is statistically significant. What do you conclude?
+
+```{r echo=FALSE}
+# For further questions, use 1998 poor data
+data1998 <- data %>% filter(year == 98, poor == 'pobre')
+
+# Average enrollment rate for poor, treated
+treated <- data1998 %>% filter(progresa == 'basal') %>%
+  na.omit()
+
+# Average enrollment rate for poor, untreated
+untreated <- data1998 %>% filter(progresa == 0) %>%
+  na.omit()
+
+# Means
+treated_mean <- mean(treated$sc)
+untreated_mean <- mean(untreated$sc)
+
+# t test
+ttest <- t.test(treated$sc, untreated$sc)
+ttest
+
+```
+
+Average enrollment rate in treated villages: `r treated_mean`
+Average enrollment rate in untreated villages: `r treated_mean`
+
+We again see an increase in average enrollment rate in treated villages from untreated villages by **`r treated_mean - untreated_mean`** in 1998. We can conclude that the program is significant in average enrollment rate because we have a **p-value of `r ttest['p.value']`**, which is less than 0.05.
+
+
+### 2.2 Cross-Sectional Estimator: Regression
+
+Estimate the effects of Progresa on enrollment using a regression model, by regressing the 1998 enrollment rates of the poor on treatment assignment. Do not include any additional control variables.
+
+Discuss the following:
+
+1. Based on this model, how much did Progresa increase the likelihood of a child enrolling?
+2. How does your regression estimate compare to your t-test estimate from part 2.1?
+3. Based on this regression model, can we reject the null hypothesis that the treatment effects are zero?
+4. What is the counterfactual assumption underlying this regression?
+
+Note: I recommend to use statsmodels.formula.api as this allows to use convenient R-style formulas and provedes nice summaries of the results.
+
+```{r echo=FALSE}
+cs <- lm(sc ~ progresa, data = data1998)
+summary(cs)
+```
+
+Progresa increased the likelihood of a child enrolling by **0.038265**. We can compare it to the t-test we performed above and see a difference of **`r 0.038265 - (treated_mean - untreated_mean)`**, which is not a large difference. Based on this regression model we can reject the null hypothesis that the treatment effects are zero. The counterfactual assumption underlying this regression is that enrollment rates in 1997 (before treatment) is the same.
+
+
+### 2.3 Multiple Regression
+
+Re-run the above regression estimated but this time include a set of relevant control variables. Include, for instance, age, distance to a secondary school, gender, education of household head, welfare index, indigenous, etc.
+
+1. How do the controls affect the point estimate of treatment effect?
+2. How do the controls affect the standard error on the treatment effect?
+3. How do you interpret the differences (or similarities) between your estimates of 2.2 and 2.3?
+
+
+```{r echo=FALSE}
+m <- lm(sc ~ progresa + age + dist_sec + sex + hohedu + welfare_index + indig + hohwag , data = data1998)
+summary(m)
+```
+
+The controls affect the point estimate of treatment effect by showing that they hold a large significance to the average enrollment as well. While treatment still has a large t value of **9.047** and is therefore still significant, we see other significant variables appear such as *age*, *dist_sec*, *sex*, *household education*, *welfare_index*, and *indig*. The controls affected the standard error on the treatment effect from **0.0043** to **0.0037**. Our model is more accurate with the introduction of other variables. We can see this because the standard error of progresa decreased, even though the model now shows it has a lesser significant effect than the first model.
+
+
+### 2.4 Difference-in-Difference, version 1 (tabular)
+
+Thus far, we have computed the effects of Progresa by estimating the difference in 1998 enrollment rates across villages. An alternative approach would be to compute the treatment effect using a difference-in-differences framework.
+
+Begin by estimating the average treatment effects of the program for poor households using data from 1997 and 1998. Specifically, calculate:
+
+a) the difference (between 1997 and 1998) in enrollment rates among poor households in treated villages
+b) the difference (between 1997 and 1998) in enrollment rates among poor households in control villages.
+c) The difference between these two differences is your estimate. (i.e. Difference-in-Differences estimate = [Y_T(98) - Y_C(98)] - [Y_T(97) - Y_C(97)])
+
+
+```{r echo=FALSE}
+data1997 <- data %>% filter(year == 97, poor == 'pobre')
+
+treated97 <- data1997 %>% filter(progresa == 'basal') %>% na.omit()
+untreated97 <- data1997 %>% filter(progresa == 0) %>% na.omit()
+treated98 <- data1998 %>% filter(progresa == 'basal') %>% na.omit()
+untreated98 <- data1998 %>% filter(progresa == 0) %>% na.omit()
+
+
+a <- mean(treated98$sc) - mean(treated97$sc)
+b <- mean(untreated98$sc) - mean(untreated97$sc)
+c <- a - b
+
+```
+
+The difference (between 1997 and 1998) in enrollment rates among poor households in treated villages: **`r round(a, 4)`**
+
+The difference (between 1997 and 1998) in enrollment rates among poor households in control villages: **`r round(b, 4)`**
+
+The difference between these two differences is your estimate: **`r c`**
+
+Our simple differences value was **`r treated_mean - untreated_mean`**, which is a little more than our current estimate. The counterfactual assumption underlying this estimate is that there wouldn't be a difference between treatment and controlled average enrollment rates for 1997 and 1998 if the progresa treatment existed.
+
+
+### 2.5 Difference-in-Difference, version 2 (regression)
+
+Now use a regression specification to estimate the average treatment effects of the program in a difference-in-differences framework. Include at least 5 control variables.
+
+1. What is your estimate of the impact of Progresa? Be very specific in interpreting your coefficients and standard errors, and make sure to specify exactly what units you are measuring and estimating.
+2. How do these estimates of the treatment effect compare to the estimates based on the simple difference?
+3. How do these estimates compare to the difference-in-difference estimates from 2.4 above? What accounts for these differences?
+4. What is the counterfactual assumption underlying this regression?
+
+
+```{r echo=FALSE}
+data_both_years <- data %>% filter(year == 97 | year == 98) %>% na.omit()
+
+did <- lm(sc ~ (progresa * poor) + age + dist_sec + sex + hohedu + welfare_index + indig + hohwag, data = data_both_years)
+
+summary(did)
+```
+
+Progresa has an increase (coeff) of **0.02717** to average enrollment rate. The t-value of progresa is **4.117** and shows that the variable is very significant in our regression. Our standard error for progressa is **0.0066**. This may suggest that because the standard error is higher than our previous models, the other models may show more accuracy. Looking at the interaction variable, the estimate is a negative value. We see that the using the control variables that we used, there was very minimal difference in the enrollment rate because of the treatment.
+
+Impact of progresa is much lower than the simple differences we had calculated earlier (`r treated_mean - untreated_mean`). We can compare these estimates compare to the difference-in-difference estimates from 2.4 above (`r c`) and see a similar comparison. The introduction of other variables is what accounts for these differences; we see huge influential factors such as age and head of household income that affect average enrollment rates, which are addressed in our DiD version 2 estimate. For example, the younger the student is, the more likely they are to be attending school. The counterfactual assumption underlying this regression is that the data would not change between families and villages without treatment.
+
+### 2.6 Summary
+
+Based on all the analysis you have undertaken to date, do you believe that Progresa had a causal impact on the enrollment rates of poor households in Mexico? Explain by referring to the methods and results above.
+
+> Yes, Progresa is likely to have had a causal impact on the enrollment rates of poor households in Mexico. We have succeeded in rejecting the null hypothesis with each of our tests, as each test holds the progresa variable as statistically significant. We have seen that other variables, such as age and head of household income, provide a great impact on average enrollment rates as well and are therefore responsible, however, we can still see that the progresa treatment slightly increases average enrollment rate. 
+
