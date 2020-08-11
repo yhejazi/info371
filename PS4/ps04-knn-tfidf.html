@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>final</title>
+<title>ps04-knn-tfidf</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13077,20 +13077,16 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="INFO371-Final-Exam/Winter-2019">INFO371 Final Exam/Winter 2019<a class="anchor-link" href="#INFO371-Final-Exam/Winter-2019">&#182;</a></h1><p>Score: 20/20</p>
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>This is the final exam. As you can see, it is heavily influenced from PS4 and 6. Rules:</p>
-<ul>
-<li>You may use all available materials, including internet sources</li>
-<li>You must not communicate with the others. This is an individual exam.</li>
-<li>References must be appropriately cited. Links to solutions copied from websites, such as StackOverflow must be provided in code comments. If you are re-using code from your previous problem sets, mention it.</li>
-<li>You have to sign the compliance form, attached on the last page, and return it together with the rest of the exam (a cellphone photo of the signed form is OK).</li>
-<li>Please explain your answers and show all your work; a complete argument must be presented to obtain full credit.</li>
-<li>All plots must be appropriately labeled, and appropriate colors/labels/font sizes must be used. Here I mean appropriate for thYs exam, it does not conform to the looong explanations in Science journal.</li>
-<li>You can instructors if you are stuck with something. I want you to spend most of the time on ML problems, not on an obscure technical issue. However, it's somewhat limited how much help we can offer.
-The exam contains 2 questions. The first one uses Boston Housing data, the second one is about text classification of newgroup articles (and the data is probably new to you). I expect you to use existing packages and not implement any code yourself. But you are welcome to, and you are also welcome to explore other avenues besides strictly asked below.
-As always, please submit your results in two ways: as a code (notebook/markdown/...) and as a final version (html/pdf/...).
-Good luck!</li>
-</ul>
+<h1 id="INFO371-Problem-set-4:-k-NN,-TF-IDF">INFO371 Problem set 4: k-NN, TF-IDF<a class="anchor-link" href="#INFO371-Problem-set-4:-k-NN,-TF-IDF">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>In this project, we will program k-NN with cosine similarity using both bag-of-words and TF-IDF approaches.</p>
+<p>We will use two types of data: first, various texts from Cantenbury corpus with several books added from
+Project Gutenberg, and thereafter Rotten Tomatoes, brief movie reviews. In case of the texts, we will find the correct source of the text. In case of tomatoes, to predict if the review is for a "rotten" or"fresh" movie.</p>
 
 </div>
 </div>
@@ -13098,9 +13094,298 @@ Good luck!</li>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Regression-(10pt)">Regression (10pt)<a class="anchor-link" href="#Regression-(10pt)">&#182;</a></h2><p>Your first task is to demonstrate your skills on the good old (and boring) Boston housing data. You estimate Boston house prices (medv) using all other features as predictors. Use cross-validation to establish the best predictor, we don't spend time on a separate testing data here.
-I expect you to use existing packages and functions, not to implement the methods yourself. However, feel free implement your own, or to re-use something you have done for a previous problem set.</p>
-<p>1) Load Boston data. It's located in R packages MASS (just use MASS::Boston), and in sklearn where you can load it as</p>
+<h2 id="1-Where-are-these-texts-coming-from?">1 Where are these texts coming from?<a class="anchor-link" href="#1-Where-are-these-texts-coming-from?">&#182;</a></h2><p>The data file texts.csv contains the textswe need to classify. It contains the following variables:</p>
+<ul>
+<li><strong>name</strong>: name of the original file. It is usually author-name form and it should be fairly easy to find the
+original text in most cases.</li>
+<li><strong>size</strong>: size of the original text, in bytes</li>
+<li><strong>lines</strong>: size of the original text, in lines</li>
+<li><strong>chunkid</strong>: chunk id, from 1 and growing, see chunk. If you want to re-assemble the original texts, you just have to put these next to each other in the order of chunkid.</li>
+<li><strong>chunk</strong>: a page of text. It is not really a page, just 25 lines of text, whatever happened to be on those 25
+lines.</li>
+</ul>
+<p>Text chunks are just verbatim texts that may contain all kind of characters, including newlines. Note the
+file is tab separated and uses quotes for strings.</p>
+<p>We need to read all the texts, convert these to a) bag-of-words, and b) TF-IDF-s, and predict the
+correct source using k-NN.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="1.1-Bag-of-words">1.1 Bag of words<a class="anchor-link" href="#1.1-Bag-of-words">&#182;</a></h3><p>First, let's use bag-of-words (BOW) approach.</p>
+<ol>
+<li>Load the data. Print out a few lines of it to inspect it's structure.</li>
+<li>Inspect some of the texts. Note that chunkid 1 corresponds to the first page of the text.</li>
+<li>List all the text sources listed in variable name. How many different texts does the data contain?</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">texts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;texts.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">texts</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[2]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>size</th>
+      <th>lines</th>
+      <th>chunkid</th>
+      <th>chunk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>balbulus-early-life-charlemagne</td>
+      <td>259062</td>
+      <td>4394</td>
+      <td>1</td>
+      <td>\r\nTitle: Early Lives of Charlemagne by Eginh...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>balbulus-early-life-charlemagne</td>
+      <td>259062</td>
+      <td>4394</td>
+      <td>2</td>
+      <td>\r\n\r\nThe notes, keyed to line numbers in th...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>balbulus-early-life-charlemagne</td>
+      <td>259062</td>
+      <td>4394</td>
+      <td>3</td>
+      <td>\r\n         From a bronze statuette in the Mu...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>balbulus-early-life-charlemagne</td>
+      <td>259062</td>
+      <td>4394</td>
+      <td>4</td>
+      <td>\r\n                _A lui finit la dissolutio...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>balbulus-early-life-charlemagne</td>
+      <td>259062</td>
+      <td>4394</td>
+      <td>5</td>
+      <td>public opinion in regard to the meaning of fal...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of texts: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">texts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of titles: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">texts</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">))))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Number of texts: 12924
+Number of titles: 29
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">first_pages</span> <span class="o">=</span> <span class="n">texts</span><span class="p">[</span><span class="n">texts</span><span class="p">[</span><span class="s1">&#39;chunkid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">first_pages</span>
+
+<span class="c1"># inspect alice in wonderland</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">first_pages</span><span class="p">[</span><span class="n">first_pages</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;carroll-alice-wonderland&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">chunk</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>                ALICE&#39;S ADVENTURES IN WONDERLAND
+
+                          Lewis Carroll
+
+               THE MILLENNIUM FULCRUM EDITION 2.9
+
+
+
+
+                            CHAPTER I
+
+                      Down the Rabbit-Hole
+
+
+  Alice was beginning to get very tired of sitting by her sister
+on the bank, and of having nothing to do:  once or twice she had
+peeped into the book her sister was reading, but it had no
+pictures or conversations in it, `and what is the use of a book,&#39;
+thought Alice `without pictures or conversation?&#39;
+
+  So she was considering in her own mind (as well as she could,
+for the hot day made her feel very sleepy and stupid), whether
+the pleasure of making a daisy-chain would be worth the trouble
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All text sources: &quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">texts</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of text sources: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">texts</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>All text sources:  [&#39;balbulus-early-life-charlemagne&#39; &#39;beesly-queen-elizabeth&#39; &#39;bible&#39;
+ &#39;carroll-alice-wonderland&#39; &#39;chipman-earliest-electromagnetic-instruments&#39;
+ &#39;cia-world-factbook-1992&#39; &#39;eckstein-quintus-claudius&#39;
+ &#39;fisher-quaker-colonies&#39; &#39;gallienne-quest-of-golden-girl&#39;
+ &#39;gordon-quiet-talks-crowned-christ&#39; &#39;hardy-madding-crowd&#39;
+ &#39;infiltrating-open-systems&#39; &#39;kant-metaphysical-elements-ethics&#39;
+ &#39;karn-snowflakes&#39; &#39;milton-paradise-lost&#39;
+ &#39;naval-academy-sound-military-decision&#39; &#39;newsgroup&#39;
+ &#39;paper-compact-hash-tables&#39; &#39;paper-data-compression&#39;
+ &#39;paper-logical-implementation-of-arithmetic&#39;
+ &#39;paper-programming-by-example&#39; &#39;paper-search-for-autonomy&#39;
+ &#39;selected-polish-tales&#39; &#39;shakespeare-as-you-like-it&#39;
+ &#39;unamuno-tragic-sense-of-life&#39; &#39;vaneeden-quest&#39;
+ &#39;webster-early-european-history&#39; &#39;why-speech-output&#39;
+ &#39;workshop-proceedings&#39;] 
+
+Number of text sources:  29
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now it's time to split it into testing and validating parts.</p>
+<p><strong>Warning</strong>: The dataset contains 13,000 texts and 65,000 unique words. If you load in
+everything, the BOW matrix takes approximately 8GB of RAM. It is recommended to start with very small
+datasets, say 10 pages for both training and validation.</p>
 
 </div>
 </div>
@@ -13110,58 +13395,23 @@ I expect you to use existing packages and functions, not to implement the method
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_boston</span>
-<span class="n">bdata</span> <span class="o">=</span> <span class="n">load_boston</span><span class="p">()</span>
-<span class="n">X</span> <span class="o">=</span> <span class="n">bdata</span><span class="o">.</span><span class="n">data</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">bdata</span><span class="o">.</span><span class="n">target</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+
+<span class="n">ntrain</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">nVal</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">train</span> <span class="o">=</span> <span class="n">texts</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">val</span> <span class="o">=</span> <span class="n">texts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">texts</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train</span><span class="p">)]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nVal</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># split intro train/val</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">chunk</span>
+<span class="n">X_val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">chunk</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">name</span>
+<span class="n">y_val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">name</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># check also boston.feature_names and other information</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;keys:&#39;</span><span class="p">,</span> <span class="n">bdata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">feature names:&#39;</span><span class="p">,</span> <span class="n">bdata</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">data shape:&#39;</span><span class="p">,</span> <span class="n">bdata</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">target shape:&#39;</span><span class="p">,</span> <span class="n">bdata</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>keys: dict_keys([&#39;data&#39;, &#39;target&#39;, &#39;feature_names&#39;, &#39;DESCR&#39;])
-
-feature names: [&#39;CRIM&#39; &#39;ZN&#39; &#39;INDUS&#39; &#39;CHAS&#39; &#39;NOX&#39; &#39;RM&#39; &#39;AGE&#39; &#39;DIS&#39; &#39;RAD&#39; &#39;TAX&#39; &#39;PTRATIO&#39;
- &#39;B&#39; &#39;LSTAT&#39;]
-
-data shape: (506, 13)
-
-target shape: (506,)
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13169,1047 +13419,9 @@ target shape: (506,)
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Ensure that target MEDV is separated from data, and all features are numeric (this is already the case if you use sklearn).</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">boston</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">bdata</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-<span class="n">boston</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">bdata</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[:]</span>
-<span class="n">boston</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[25]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>CRIM</th>
-      <th>ZN</th>
-      <th>INDUS</th>
-      <th>CHAS</th>
-      <th>NOX</th>
-      <th>RM</th>
-      <th>AGE</th>
-      <th>DIS</th>
-      <th>RAD</th>
-      <th>TAX</th>
-      <th>PTRATIO</th>
-      <th>B</th>
-      <th>LSTAT</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.00632</td>
-      <td>18.0</td>
-      <td>2.31</td>
-      <td>0.0</td>
-      <td>0.538</td>
-      <td>6.575</td>
-      <td>65.2</td>
-      <td>4.0900</td>
-      <td>1.0</td>
-      <td>296.0</td>
-      <td>15.3</td>
-      <td>396.90</td>
-      <td>4.98</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.02731</td>
-      <td>0.0</td>
-      <td>7.07</td>
-      <td>0.0</td>
-      <td>0.469</td>
-      <td>6.421</td>
-      <td>78.9</td>
-      <td>4.9671</td>
-      <td>2.0</td>
-      <td>242.0</td>
-      <td>17.8</td>
-      <td>396.90</td>
-      <td>9.14</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.02729</td>
-      <td>0.0</td>
-      <td>7.07</td>
-      <td>0.0</td>
-      <td>0.469</td>
-      <td>7.185</td>
-      <td>61.1</td>
-      <td>4.9671</td>
-      <td>2.0</td>
-      <td>242.0</td>
-      <td>17.8</td>
-      <td>392.83</td>
-      <td>4.03</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.03237</td>
-      <td>0.0</td>
-      <td>2.18</td>
-      <td>0.0</td>
-      <td>0.458</td>
-      <td>6.998</td>
-      <td>45.8</td>
-      <td>6.0622</td>
-      <td>3.0</td>
-      <td>222.0</td>
-      <td>18.7</td>
-      <td>394.63</td>
-      <td>2.94</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.06905</td>
-      <td>0.0</td>
-      <td>2.18</td>
-      <td>0.0</td>
-      <td>0.458</td>
-      <td>7.147</td>
-      <td>54.2</td>
-      <td>6.0622</td>
-      <td>3.0</td>
-      <td>222.0</td>
-      <td>18.7</td>
-      <td>396.90</td>
-      <td>5.33</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Are all features numeric?</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">boston</span><span class="o">.</span><span class="n">dtypes</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>CRIM       float64
-ZN         float64
-INDUS      float64
-CHAS       float64
-NOX        float64
-RM         float64
-AGE        float64
-DIS        float64
-RAD        float64
-TAX        float64
-PTRATIO    float64
-B          float64
-LSTAT      float64
-dtype: object 
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>2) List all relevant methods you know (and we covered in the class) for predicting MEDV based on this data. In each case also discuss the strenghs and weaknesses of the methods, and list the most important hyperparameters you may consider (more complex methods may have very large number of hyperparameters, so you don't want to list them all). Also, do not consider the optimizer and related tolerances as a hyperparameters.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>kNN</strong>:</p>
-<p>Important hyperparameters: The k in k-nearest neighbors.</p>
-<p>Strengths: simple and surprisingly flexible if you pre-process your data and engineer useful features.</p>
-<p>Weaknesses: you need to specify the number of neighbors/clusters, which isn't always easy to do</p>
-<p><strong>Logistic</strong>:</p>
-<p>Important hyperparameters: The penalty and C in logistic.</p>
-<p>Strengths: algorithm can be regularized to avoid overfitting, nice probabilistic interpretation</p>
-<p>Weaknesses: tends to underperform when there are multiple or non-linear decision boundaries, can't catch complexity</p>
-<p><strong>Lasso</strong>:</p>
-<p>Important hyperparameters: alpha</p>
-<p>Strengths: majorly used to prevent overfitting, sets less important predictors to zero and helps you with choosing the predictors that can be left out of the model</p>
-<p>Weaknesses: In many analyses, it can be important to include <em>all</em> variables and not drop the ones that do not have significance in the predicting. They could be necessary control variables or their small effect could hold a large significance</p>
-<p><strong>Ridge</strong>:</p>
-<p>Important hyperparameters:: alpha</p>
-<p>Strengths: majorly used to prevent overfitting by adding a penalty to models that have too large coefficients</p>
-<p>Weaknesses: Since it includes all the features, it is not very useful in case of exorbitantly high features, say in millions, as it will pose computational challenges.</p>
-<p><strong>OLS</strong>:</p>
-<p>Important hyperparameters: there is none. The number/choice of features is not a hyperparameter, but can be viewed as a post processing or iterative tuning process.</p>
-<p>Strengths: can be regularized to avoid overfitting, very useful on a huge amount of features where better algorithms suffer from overfitting</p>
-<p>Weaknesses: performs poorly when there are non-linear relationships (can't catch complexity)</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>3) Use at least three of the methods you listed to predict MEDV based on other attributes. Ideas: OLS, k-NN, trees, Lasso, compare normalized-versus non-normalized features, try different distance metrics.</p>
-<p>In each case:</p>
-<p>(a) select a relevant measure of goodness, such as RMSE or R2.</p>
-<p>(b) loop over selected hyperparameters.</p>
-<p>(c) cross-validate your result using the selected goodness measure and pick the best set of hyper- parameters.</p>
-<p>4) Present your results a table, or a graph, or another easily accessible summary.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[134]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsRegressor</span>
-<span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
-<span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;k&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[]}</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
-    <span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsRegressor</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neigh</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
-
-<span class="n">scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>   
-<span class="n">scores</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[136]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;kNN&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[137]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
-<span class="n">alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
-<span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[]}</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alphas</span><span class="p">:</span>
-    <span class="n">ridgereg</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">ridgereg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ridgereg</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
-    
-<span class="n">scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>   
-<span class="n">scores</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[137]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>alpha</th>
-      <th>score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.767482</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.1</td>
-      <td>0.783993</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.2</td>
-      <td>0.781521</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.3</td>
-      <td>0.775130</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.4</td>
-      <td>0.767020</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>0.5</td>
-      <td>0.758054</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>0.6</td>
-      <td>0.748680</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>0.7</td>
-      <td>0.739154</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>0.8</td>
-      <td>0.729632</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>0.9</td>
-      <td>0.720208</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>1.0</td>
-      <td>0.710942</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[139]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;purple&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;ridge&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYUAAAEWCAYAAACJ0YulAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
-AAALEgAACxIB0t1+/AAAADl0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uIDIuMS4wLCBo
-dHRwOi8vbWF0cGxvdGxpYi5vcmcvpW3flQAAFklJREFUeJzt3X+Q3HV9x/HX634fl+SSmENpfhC0
-QQwUC56AU0fjSG3ANpk6lCEdRrDUtLbgjFKnWDtqsbVTnI5TRlqISlE6gmitZhiUzlgcKxLkEKEE
-iI3hR06w+X0h5JK73L37x37vw97e3u5ect/d3N3zMXOz3x+f3Xt/cpd97efz/XGOCAEAIElNjS4A
-AHDyIBQAAAmhAABICAUAQEIoAAASQgEAkBAKQBW2t9peM8m+Nbb761wSkJuWRhcAnOwi4uxG1wDU
-CyMFoALbfHDCnEIoACVsP2f7L20/IekV2/22L872ddq+w/Z+209JemvJc8+3/Zjtl21/w/bXbf9t
-0f7ftf0z2wds/9j2ufXtHVAZoQCUt0HSeyUtlHSsaPunJL0h+/odSVeN7bDdJuk/JN0habGkuyT9
-ftH+8yXdLulPJL1G0m2SNttuz7EfwJQQCkB5N0fEzogYLNl+uaS/i4h9EbFT0s1F+y5S4TjdzREx
-HBHfkvSTov0flHRbRDwcESMR8RVJR7PnAScFQgEob+ck23+tZN/zJft+GePvMlnc9nRJ12dTRwds
-H5C0PHsecFIgFIDyJrt98EsqvJGPWVGyb6ltF20rbrtThVHGwqKvUyLirukpGThxhAIwNfdI+rjt
-RbaXSbquaN9DkkYkXWu7xfZ6SRcU7f+ipD+1faELumy/1/b8+pUPVEYoAFPzNypMGT0r6T8l3Tm2
-IyKGJL1P0jWSDki6UtK9Khw3UET0qXBc4QuS9kvaLunq+pUOVGf+yA6QH9sPS7o1Iv610bUAtWCk
-AEwj2++0/bps+ugqSedK+l6j6wJqlVso2L7d9i7bT06y37Zvtr3d9hPZOdzATPdGSY9LGpB0vaTL
-IuKlxpYE1C636SPb75B0SNJXI+KcMvsvVeEg3aWSLpT0TxFxYS7FAABqkttIISJ+KGlfhSbrVQiM
-iIgtkhbaPi2vegAA1TXyZl9LNf7Cnv5s24Shtu2NkjZKUldX11vOOuusuhQIALPFo48+uicieqq1
-a2QouMy2snNZEbFJ0iZJ6u3tjb6+vjzrAoBZx/bz1Vs19uyjfo2/2nOZpBcbVAsAQI0Nhc2S3p+d
-hXSRpAHO0gCAxspt+sj2XZLWSFqS/bnCT0lqlaSIuFXSfSqcebRd0mFJH8irFgBAbXILhYjYUGV/
-SPrzvL4/AGDquKIZAJAQCgCAhFAAACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEAkBAKAICEUAAA
-JIQCACAhFAAACaEAAEgIBQBAQigAABJCAQCQEAoAgIRQAAAkhAIAICEUAAAJoQAASAgFAEBCKAAA
-EkIBAJAQCgCAhFAAACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEAkBAKAICEUAAAJLmGgu21trfZ
-3m77hjL7V9h+wPZjtp+wfWme9QAAKsstFGw3S7pF0iWSVkvaYHt1SbO/lnRPRJwn6QpJ/5xXPQCA
-6vIcKVwgaXtE7IiIIUl3S1pf0iYkLciWuyW9mGM9AIAq8gyFpZJ2Fq33Z9uKfVrSlbb7Jd0n6bpy
-L2R7o+0+2327d+/Oo1YAgPINBZfZFiXrGyTdERHLJF0q6U7bE2qKiE0R0RsRvT09PTmUCgCQpJYc
-X7tf0vKi9WWaOD10jaS1khQRD9nukLRE0q4c66qLoy8f1cALAxp4YUAHdx7U6Miomlqa1NzarKaW
-JjW1Nk2+XmnfJOt2uQwGgKnJMxQekbTK9hmSfqnCgeQ/LGnzgqR3S7rD9pskdUg66eeHRkdGdehX
-h9Kb/sDzA68uZ+tHDhypa01usppaJwZHS3uL2ua1qbWrVW3z2gpfXW1qndealtP2Mu3Gbe9qk5sI
-H2A2yy0UIuKY7Wsl3S+pWdLtEbHV9o2S+iJis6TrJX3R9kdUmFq6OiJKp5jqbujQkAZ2lnmzz97w
-D/Yf1Oix0XHP6VjYoe4V3epe0a0Vb1+RlrtXdGvB8gVqbmvW6PCoRo+NamR4RKPHRsuuV9p3PG1H
-joxo6JUhDb8yrKFDQzq8+7CGXhnS0KHC1/Arw1P6t2k9pXV8cJQLj2y5fUG72rvb1b6gXR3dHWrv
-Hv/Y0tnCCAc4yfgkeA+ekt7e3ujr6zvu58dojP+UX+bT/uC+wXHPcbO1YNmCcW/06ev0bnUv71b7
-gvYT7VpDxGhoeHA4BcRYWJQGR+n24UPDFdvUEjZNLU0pOMbCojhA0vaSNsVt2+e3M3oBamD70Yjo
-rdYuz+mjk8pPv/xT/eizP9LAzgGNDo//lN/e3Z7e5Je9bVnhjb7ojX/+afPV1DI7L/52kwuf9Lva
-pvV1YzR09OWjOjpwVEcGjujowaLlksehg0NpfeCFAe0a2JXWY7TKhxZL7fPHB0jHwo7C16KSx4Ud
-6lzUOW5b+4J2NTXPzp8tcDzmTCh0ndqlpRcu1erLV0/4tN/R3dHo8mYdN1kd3R3q6O5Qt7qP6zUi
-QsOHhycNk9KgGVs+9KtD2vPMHg3uHywc26mUK1YKkhQYNQZKx8IOtZ7SyhQYZpU5N32EuWVsxHLk
-wJHC1/7C41hgFG9Lj0X7q02DNbU2TQiMzkWdheDIljsXd47bPvbYNq+NQEHdMH0EaPyIRadP/fkj
-QyM6MlBboAzuH9TgvkHt/8V+De4rtKk0/dXU0lQ2LDoWdahzceeE7elxcScjFOSGUAAqaG5rVldP
-l7p6uqb83DRKyQJj3OO+wbQ8tv3wnsPa+79703qlaa+m1qZxYTE2GikOlDRCKQ6YxZ1qaee/PSbH
-bweQk+JRysKVC6f03BgNHT14dGKYFD0O7ns1VA79X3YcZd+gjgxUPo7S0tkyISg6F3WqY3HHhG3F
-wdKxsIOD8nMAoQCchNzkdDBbZ0ztuaMjozo6cHRccBSPTNLyvkK47N+xXy/tf0mD+wY1fLjyMZT2
-Be2TjkAqjVLa5nP8ZKYgFIBZpqm5qfBmvLhTesPUnjsyNFI2TIrXi0cqB/sPpvXSU72LudmVRyFl
-QmasTUsHb1P1xL82gKS5rVnzXjtP8147b0rPiwgNvzI8YTQy2Ujl8J7D2vvzvTWdNtzS0TLuDK4J
-YVLm2MrYtubW5hP8F5l7CAUAJ8x2ur1J9/KpXZcSo1E4w2uSaa7iYyeD+wZ14PkDGnyssG3o0FDF
-126b1zbxDK7F5c/oGrdtYcesvWC1GkIBQEO5qTC11LmoU4tev2hKzx0ZHqn57K7BfYPat31f2l7L
-8ZPS4Ch7inDpKcUz/IA8oQBgxmpubVbXqV3qOnXqpwwfO3ps0jO6xgVKFjB7nt6T2owcHan42qWB
-UnphY6VAafSUF6EAYE5qaW/RvNfN07zXTe34iSQNDw6Pu2ix3GPx8t6fv3r9ybHBYxVfu+yUV3YN
-ytl/cLaWXbTseLtcE0IBAKaotbNVrZ2tmn/a/Ck/t9wIpVKoFE959azuIRQAYDY5kRFKPe5VN3OP
-hgDAHFOPCwAJBQBAQigAABJCAQCQEAoAgIRQAAAkhAIAICEUAAAJoQAASAgFAEBCKAAAEkIBAJAQ
-CgCAhFAAACSEAgAgIRQAAAmhAABICAUAQEIoAACSXEPB9lrb22xvt33DJG0ut/2U7a22v5ZnPQCA
-ylryemHbzZJukfTbkvolPWJ7c0Q8VdRmlaSPS/qtiNhv+9S86gEAVJfnSOECSdsjYkdEDEm6W9L6
-kjYflHRLROyXpIjYlWM9AIAq8gyFpZJ2Fq33Z9uKnSnpTNsP2t5ie225F7K90Xaf7b7du3fnVC4A
-IM9QcJltUbLeImmVpDWSNkj6ku2FE54UsSkieiOit6enZ9oLBQAU5BkK/ZKWF60vk/RimTbfiYjh
-iHhW0jYVQgIA0AB5hsIjklbZPsN2m6QrJG0uafNtSe+SJNtLVJhO2pFjTQCACnILhYg4JulaSfdL
-elrSPRGx1faNttdlze6XtNf2U5IekPSxiNibV00AgMocUTrNf3Lr7e2Nvr6+RpcBADOK7Ucjorda
-O65oBgAkhAIAICEUAAAJoQAASAgFAEBCKAAAEkIBAJAQCgCAhFAAACSEAgAgIRQAAAmhAABICAUA
-QFI1FGwvsP2GMtvPzackAECjVAwF25dLekbSv9veavutRbvvyLMwAED9VRsp/JWkt0TEb0r6gKQ7
-bb8v21fubzADAGawlir7myPiJUmKiJ/Yfpeke20vkzSz/joPAKCqaiOFl4uPJ2QBsUbSekln51gX
-AKABqo0UPqSS4IiIl22vlXR5blUBABqiYihExOOT7BrNoRYAQINVO/toge2P2/6C7fe44DpJO8RI
-AQBmnWrTR3dK2i/pIUl/LOljktokrY+In+VcGwCgzqqFwusj4jckyfaXJO2RtCIiXs69MgBA3VU7
-+2h4bCEiRiQ9SyAAwOxVbaTwZtsHs2VL6szWLSkiYkGu1QEA6qra2UfN9SoEANB43CUVAJAQCgCA
-hFAAACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEAkOQaCrbX2t5me7vtGyq0u8x22O7Nsx4AQGW5
-hYLtZkm3SLpE0mpJG2yvLtNuvqQPS3o4r1oAALXJc6RwgaTtEbEjIoYk3a3C33Yu9RlJN0k6kmMt
-AIAa5BkKSyXtLFrvz7Ylts+TtDwi7q30QrY32u6z3bd79+7prxQAICnfUHCZbZF22k2SPi/p+mov
-FBGbIqI3Inp7enqmsUQAQLE8Q6Ff0vKi9WWSXixany/pHEk/sP2cpIskbeZgMwA0Tp6h8IikVbbP
-sN0m6QpJm8d2RsRARCyJiJURsVLSFknrIqIvx5oAABXkFgoRcUzStZLul/S0pHsiYqvtG22vy+v7
-AgCOX7U/x3lCIuI+SfeVbPvkJG3X5FkLAKA6rmgGACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEA
-kBAKAICEUAAAJIQCACAhFAAACaEAAEgIBQBAQigAABJCAQCQEAoAgIRQAAAkhAIAICEUAAAJoQAA
-SAgFAEBCKAAAEkIBAJAQCgCAhFAAACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEAkBAKAICEUAAA
-JIQCACDJNRRsr7W9zfZ22zeU2f9R20/ZfsL2922fnmc9AIDKcgsF282SbpF0iaTVkjbYXl3S7DFJ
-vRFxrqRvSropr3oAANXlOVK4QNL2iNgREUOS7pa0vrhBRDwQEYez1S2SluVYDwCgijxDYamknUXr
-/dm2yVwj6bvldtjeaLvPdt/u3bunsUQAQLE8Q8FltkXZhvaVknolfa7c/ojYFBG9EdHb09MzjSUC
-AIq15Pja/ZKWF60vk/RiaSPbF0v6hKR3RsTRHOsBAFSR50jhEUmrbJ9hu03SFZI2FzewfZ6k2ySt
-i4hdOdYCAKhBbqEQEcckXSvpfklPS7onIrbavtH2uqzZ5yTNk/QN2z+zvXmSlwMA1EGe00eKiPsk
-3Vey7ZNFyxfn+f0BAFPDFc0AgIRQAAAkhAIAICEUAAAJoQAASAgFAEBCKAAAEkIBAJAQCgCAhFAA
-ACSEAgAgIRQAAAmhAABICAUAQEIoAAASQgEAkBAKAICEUAAAJIQCACAhFAAACaEAAEgIBQBAQigA
-ABJCAQCQEAoAgIRQAAAkhAIAICEUAAAJoQAASAgFAEBCKAAAEkIBAJAQCgCAhFAAACSEAgAgyTUU
-bK+1vc32dts3lNnfbvvr2f6Hba/Msx4AQGW5hYLtZkm3SLpE0mpJG2yvLml2jaT9EfHrkj4v6R/y
-qgcAUF2eI4ULJG2PiB0RMSTpbknrS9qsl/SVbPmbkt5t2znWBACooCXH114qaWfRer+kCydrExHH
-bA9Ieo2kPcWNbG+UtDFbPWR723HWtKT0tecA+jw30Oe54UT6fHotjfIMhXKf+OM42igiNknadMIF
-2X0R0XuirzOT0Oe5gT7PDfXoc57TR/2SlhetL5P04mRtbLdI6pa0L8eaAAAV5BkKj0haZfsM222S
-rpC0uaTNZklXZcuXSfqviJgwUgAA1Edu00fZMYJrJd0vqVnS7RGx1faNkvoiYrOkL0u60/Z2FUYI
-V+RVT+aEp6BmIPo8N9DnuSH3PpsP5gCAMVzRDABICAUAQDIrQ2Eu3l6jhj5/1PZTtp+w/X3bNZ2z
-fDKr1ueidpfZDtsz/vTFWvps+/LsZ73V9tfqXeN0q+F3e4XtB2w/lv1+X9qIOqeL7dtt77L95CT7
-bfvm7N/jCdvnT2sBETGrvlQ4qP0LSa+X1CbpcUmrS9r8maRbs+UrJH290XXXoc/vknRKtvyhudDn
-rN18ST+UtEVSb6PrrsPPeZWkxyQtytZPbXTddejzJkkfypZXS3qu0XWfYJ/fIel8SU9Osv9SSd9V
-4TqviyQ9PJ3ffzaOFObi7TWq9jkiHoiIw9nqFhWuG5nJavk5S9JnJN0k6Ug9i8tJLX3+oKRbImK/
-JEXErjrXON1q6XNIWpAtd2vi9VAzSkT8UJWv11ov6atRsEXSQtunTdf3n42hUO72GksnaxMRxySN
-3V5jpqqlz8WuUeGTxkxWtc+2z5O0PCLurWdhOarl53ympDNtP2h7i+21dasuH7X0+dOSrrTdL+k+
-SdfVp7SGmer/9ynJ8zYXjTJtt9eYQWruj+0rJfVKemeuFeWvYp9tN6lw592r61VQHdTyc25RYQpp
-jQqjwf+2fU5EHMi5trzU0ucNku6IiH+0/TYVrn06JyJG8y+vIXJ9/5qNI4W5eHuNWvos2xdL+oSk
-dRFxtE615aVan+dLOkfSD2w/p8Lc6+YZfrC51t/t70TEcEQ8K2mbCiExU9XS52sk3SNJEfGQpA4V
-bhw3W9X0//14zcZQmIu316ja52wq5TYVAmGmzzNLVfocEQMRsSQiVkbEShWOo6yLiL7GlDstavnd
-/rYKJxXI9hIVppN21LXK6VVLn1+Q9G5Jsv0mFUJhd12rrK/Nkt6fnYV0kaSBiHhpul581k0fxcl5
-e41c1djnz0maJ+kb2TH1FyJiXcOKPkE19nlWqbHP90t6j+2nJI1I+lhE7G1c1Semxj5fL+mLtj+i
-wjTK1TP5Q57tu1SY/luSHSf5lKRWSYqIW1U4bnKppO2SDkv6wLR+/xn8bwcAmGazcfoIAHCcCAUA
-QEIoAAASQgEAkBAKAICEUACmwPZz2fn/J9QGOFkRCgCAhFAAJmH727Yfzf4uwcaSfSttP2P7K9k9
-7b9p+5SiJtfZ/qnt/7F9VvacC2z/OLvv/49tv7GuHQJqQCgAk/ujiHiLCjcQ/LDt0jvpvlHSpog4
-V9JBFf5Ox5g9EXG+pH+R9BfZtmckvSMizpP0SUmfzbV64DgQCsDkPmz7cRXum7RcE28stzMiHsyW
-/03S24v2fSt7fFTSymy5W4XbjDypwh1cz86jaOBEEApAGbbXSLpY0tsi4s0q/DWzjpJmpfeIKV4f
-uwvtiF69x9hnJD0QEedI+r0yrwc0HKEAlNctaX9EHM6OCVxUps2K7P79UuGe/j+q4TV/mS1fPS1V
-AtOMUADK+56kFttPqPAJf0uZNk9Luiprs1iF4weV3CTp720/qMIdP4GTDndJBY6D7ZWS7s2mgoBZ
-g5ECACBhpAAASBgpAAASQgEAkBAKAICEUAAAJIQCACD5fxIzuIWPy2H6AAAAAElFTkSuQmCC
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[94]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Lasso</span>
-
-<span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[]}</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alphas</span><span class="p">:</span>
-    <span class="n">lassoreg</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">lassoreg</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lassoreg</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
-    
-<span class="n">scores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>   
-<span class="n">scores</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/Users/yasmine/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:8: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
-  
-/Users/yasmine/anaconda3/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:477: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
-  positive)
-/Users/yasmine/anaconda3/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:491: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-  ConvergenceWarning)
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[94]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>alpha</th>
-      <th>score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.740608</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.1</td>
-      <td>0.582783</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.2</td>
-      <td>0.341435</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.3</td>
-      <td>0.004698</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.4</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>0.5</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>0.6</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>0.7</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>0.8</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>0.9</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>1.0</td>
-      <td>0.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[95]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">scores</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;lasso&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-SUVORK5CYII=
-"
->
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>5) Comment your results. Which methods performed best? Can you explain why?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>For the cross-validation I performed, I got that Ridge was the best model of the 3, with alpha = 1. We see better performance than Lasso and knn as well with different alphas for Ridge. The best R^2 Coeff we get with alpha = 1 is .784. This may be because ridge is able to normalize while including all the features. kNN performed better before cross-validation, and it performed better when I did different cross validations. This can be because there's not much overlap in the data, so kNN with fewer neighbors can easily pick this up.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Text-Classification-(10p)">Text Classification (10p)<a class="anchor-link" href="#Text-Classification-(10p)">&#182;</a></h2><p>This question is a compilation of your PS4 and PS6. Your task is to categorize texts into newgroups (there are 20 newsgroups) using k-NN and Naive Bayes methods. I expect you to use the existing stock libraries but you are welcome to amend what you implemented yourself. We follow the testing data approach, so you are supposed to split the data, keep testing data well away, and at the end report the final performance.
-The data is from UCI ML library and you can read a brief description there. Note that it includes many traits that make it unfairly nice for NB compared to k-NN. I have done my best to strip it from sensitive information, but it still contains a large number of names, phone numbers, etc, that may hint very well which newsgroup a text belongs to. The cleaned data is converted into a csv file with two attributes: group is the name of the newsgroup, and text is the text itself. There are 20k texts in the sample.
-Tasks:</p>
-<p>1) Load the data and save a random subsample (∼ 20%) of it away as testing data. Note: if you know that your computer is slow and you struggled with the data size in PS4 and PS6, you may as well store (say) 75% of it as testing data, or just work on a much smaller sample. On my old desktop, the full run of all models takes ∼ 5 mins and no more than 3G of RAM.</p>
-<p>In any case, if you cut your sample, please state it clearly along the lines: I chose to work on a subsample of 5000 texts only.</p>
-<p>Hint: <em>CountVectorizer</em> returns a sparse matrix. Keep it sparse. You save a lot of memory (and improve speed).</p>
+<p>After creating the training and testing sets, it is time to create the dictionary. This process contains two steps:</p>
+<p>1) Create a dictionary of all your texts.</p>
+<p>2) Recode all the texts as BOW vector.</p>
 
 </div>
 </div>
@@ -14219,8 +13431,19 @@ Tasks:</p>
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">newsgroups</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;20-newsgroups.csv&quot;</span><span class="p">)</span>
-<span class="n">newsgroups</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sentences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">X_val</span><span class="o">.</span><span class="n">values</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># initialize the vectorizer</span>
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># create the dictionary</span>
+<span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="c1"># `fit` builds the vocabulary</span>
+
+<span class="c1"># transform your data into the BOW array</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of rows:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -14233,105 +13456,142 @@ Tasks:</p>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[7]:</div>
+    <div class="prompt"></div>
 
 
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[[0 0 0 ... 0 0 0]
+ [0 0 0 ... 0 0 0]
+ [0 0 0 ... 0 0 0]
+ ...
+ [0 0 0 ... 0 0 0]
+ [0 0 0 ... 0 0 0]
+ [0 0 0 ... 0 0 0]] 
 
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>group</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>alt.atheism</td>
-      <td>Atheist Resources  Addresses of Atheist Organ...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>alt.atheism</td>
-      <td>--BEGIN PGP SIGNED MESSAGE--  An Introduction ...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>alt.atheism</td>
-      <td>In article   (Charley Wingate) writes: Well, J...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>alt.atheism</td>
-      <td>(..until kings become philosophers or philoso...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>alt.atheism</td>
-      <td>In article (Bob McGwier) writes:  [1] HOWEVER,...</td>
-    </tr>
-  </tbody>
-</table>
+Number of rows: 50
+</pre>
 </div>
-</div>
-
 </div>
 
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we have all your (training and validation) texts in BOW form. This is great; we just transformed texts into (numeric) vectors! Now we need to implement cosine similarity between these vectors.</p>
+<p>We should write a function that takes in two vectors, x and y, and returns the corresponding cosine similarity c(x,y). Test if c(x, x) = 1, test, and also a few other vectors.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">newsgroups</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">newsgroups</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="n">newsgroups</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">newsgroups</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">cos_sim</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes 2 vectors a, b and returns the cosine similarity according to the definition of the dot product&quot;&quot;&quot;</span>
+    <span class="n">dot_product</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">norm_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">norm_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dot_product</span> <span class="o">/</span> <span class="p">(</span><span class="n">norm_a</span> <span class="o">*</span> <span class="n">norm_b</span><span class="p">)</span>
+
+<span class="n">cos_sim</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1.0000000000000002</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, we will implement k-NN (without using pre-existing libraries!). Let's first try 1-NN, and when this works, extend it to k-NN. The algorithm is something along these lines:</p>
+<p>(a) Pick a validation case y (later we will loop over all of these).</p>
+<p>(b) For each vector in the training set xi, compute the cosine similarity c(y, xi). Store this number,
+and ensure we know which xi corresponds to each c value.</p>
+<p>(c) Now order all the cosine similarities we just computed in an increasing order.</p>
+<p>(d) Pick the k highest c-s. These correspond to our k nearest neighbors! Ensure we know which
+texts these are.</p>
+<p>Organize a majority voting among them to learn which text is the most popular among them. Create a frequency table and pick the most common text source name based on this. Then, compute accuracy (percentage of correct predictions). How good is your algorithm?</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">newsgroups</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">train_cases</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">40</span><span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">correct</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_cases</span><span class="p">):</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">cos_sim</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">j</span><span class="p">)))</span>
+    
+<span class="n">ordered_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted:&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ordered_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correct:&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Predicted: webster-early-european-history
+Correct: webster-early-european-history
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path_or_buf</span><span class="o">=</span><span class="s1">&#39;test.csv&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-<span class="k">del</span> <span class="n">test</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get accuracy of predicted responses</span>
+<span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -14344,7 +13604,53 @@ Tasks:</p>
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ntrain</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">nVal</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">train</span> <span class="o">=</span> <span class="n">texts</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">ntrain</span><span class="p">,</span><span class="n">random_state</span> <span class="o">=</span> <span class="mi">123</span><span class="p">)</span>
+<span class="n">val</span> <span class="o">=</span> <span class="n">texts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">texts</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train</span><span class="p">)]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nVal</span><span class="p">,</span><span class="n">random_state</span> <span class="o">=</span> <span class="mi">123</span><span class="p">)</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">chunk</span>
+<span class="n">X_val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">chunk</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">name</span>
+<span class="n">y_val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">name</span>
+
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">X_val</span><span class="o">.</span><span class="n">values</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_cases</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="n">ntrain</span><span class="p">]</span>
+<span class="n">correct</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">ntrain</span> <span class="o">+</span> <span class="n">nVal</span><span class="p">):</span>
+    <span class="n">val_case</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_cases</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">cos_sim</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">val_case</span><span class="p">)))</span>
+        
+    <span class="n">ordered_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>    
+    <span class="c1"># add 1 if prediction is correct</span>
+    <span class="k">if</span> <span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ordered_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy:&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -14357,15 +13663,13 @@ Tasks:</p>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[11]:</div>
+    <div class="prompt"></div>
 
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>9998</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Accuracy: 1.0
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -14375,37 +13679,36 @@ Tasks:</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>2) Convert the texts into bag-of-words (no TF-IDF here) and use k-NN with cosine similarity for categorization. Find the best k through CV while trying to maximize accuracy.</p>
-<p>Hints: sklearn's KNeighborsClassifier does not mention cosine metrics. However, it works for me (and is mentioned under sklearn.neighbors.NearestNeighbors).</p>
-<p>When you use pd.read_csv, the text may end up of type object and confuse the vectorizer and other text functions. Convert it to str type with something like string = text.astype('str').</p>
+<p>Now that we've tried this, let's look into other values for k!</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X_train</span> <span class="o">=</span> <span class="n">train</span><span class="p">[[</span><span class="s1">&#39;text&#39;</span><span class="p">]]</span>
-<span class="n">y_train</span> <span class="o">=</span> <span class="n">train</span><span class="p">[[</span><span class="s1">&#39;group&#39;</span><span class="p">]]</span>
-<span class="n">param</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
-<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">knn</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;k:&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">ntrain</span> <span class="o">+</span> <span class="n">nVal</span><span class="p">):</span>
+        <span class="n">val_case</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_cases</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">cos_sim</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">val_case</span><span class="p">)))</span>
+            
+        <span class="n">ordered_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">y_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ordered_result</span><span class="p">]</span>
+        <span class="n">most_common</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">val</span><span class="p">),</span> <span class="nb">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)))[</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">most_common</span><span class="p">)</span> <span class="o">==</span> <span class="n">y_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">ntrain</span><span class="p">]:</span>
+            <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy:&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -14418,77 +13721,12 @@ Tasks:</p>
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">split_data_frame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_chunks</span><span class="p">):</span> 
-    <span class="n">listOfDf</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">//</span> <span class="n">num_chunks</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_chunks</span><span class="p">):</span>
-        <span class="n">listOfDf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">chunk_size</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">chunk_size</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">listOfDf</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">cross_val</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of chunks:&#39;</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;k:&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-    
-    <span class="n">chunks</span> <span class="o">=</span> <span class="n">split_data_frame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="n">accuracy_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">chunk_df</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
-        <span class="n">tmp_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">chunk_df</span><span class="p">)]</span>
-        <span class="n">X_train</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-
-        <span class="n">y_output</span> <span class="o">=</span> <span class="n">chunk_df</span><span class="o">.</span><span class="n">group</span>
-        
-        <span class="c1"># initialize the vectorizer</span>
-        <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1"># create the dictionary</span>
-        <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
-        <span class="c1"># `fit` builds the vocabulary</span>
-        <span class="c1"># transform your data into the BOW array</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-        <span class="n">words_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">())</span>
-    
-        <span class="c1"># fit knn</span>
-        <span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
-        <span class="n">neigh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-        
-        
-        <span class="n">X_val</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">chunk_df</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">predicted</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
-
-        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_output</span><span class="p">,</span> <span class="n">predicted</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-        <span class="n">accuracy_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
-       
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy:&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average accuracy:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">accuracy_list</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;------&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">25</span><span class="p">]:</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">cross_val</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">knn</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
     <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14505,127 +13743,15 @@ Tasks:</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Number of chunks: 5
-k: 1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/Users/yasmine/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:25: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Accuracy: 37.8189094547
-Accuracy: 36.8184092046
-Accuracy: 37.0185092546
-Accuracy: 38.2191095548
-Accuracy: 36.4182091046
-Average accuracy: 37.2586293147
-------
-Time elapsed: 420.0792419910431
-Number of chunks: 5
-k: 2
-Accuracy: 33.0665332666
-Accuracy: 31.715857929
-Accuracy: 32.9664832416
-Accuracy: 33.1165582791
-Accuracy: 32.316158079
-Average accuracy: 32.6363181591
-------
-Time elapsed: 423.1376988887787
-Number of chunks: 5
-k: 3
-Accuracy: 31.6658329165
-Accuracy: 30.5152576288
-Accuracy: 31.2156078039
-Accuracy: 32.116058029
-Accuracy: 31.1655827914
-Average accuracy: 31.3356678339
-------
-Time elapsed: 410.5582060813904
-Number of chunks: 5
-k: 4
-Accuracy: 30.1650825413
-Accuracy: 28.7643821911
-Accuracy: 29.9649824912
-Accuracy: 31.9659829915
-Accuracy: 30.4652326163
-Average accuracy: 30.2651325663
-------
-Time elapsed: 426.17114996910095
-Number of chunks: 5
+<pre>k: 1
+Accuracy: 1.0
+Time elapsed: 6.447309255599976
 k: 5
-Accuracy: 29.9149574787
-Accuracy: 28.5142571286
-Accuracy: 29.8649324662
-Accuracy: 30.9154577289
-Accuracy: 30.4152076038
-Average accuracy: 29.9249624812
-------
-Time elapsed: 401.02513790130615
-Number of chunks: 5
-k: 6
-Accuracy: 29.9649824912
-Accuracy: 28.6143071536
-Accuracy: 29.6648324162
-Accuracy: 30.5152576288
-Accuracy: 30.2651325663
-Average accuracy: 29.8049024512
-------
-Time elapsed: 400.12249207496643
-Number of chunks: 5
-k: 7
-Accuracy: 29.5647823912
-Accuracy: 29.1645822911
-Accuracy: 29.9149574787
-Accuracy: 29.4147073537
-Accuracy: 29.7648824412
-Average accuracy: 29.5647823912
-------
-Time elapsed: 390.2418098449707
-Number of chunks: 5
-k: 8
-Accuracy: 29.4647323662
-Accuracy: 28.364182091
-Accuracy: 29.5647823912
-Accuracy: 29.6648324162
-Accuracy: 28.8644322161
-Average accuracy: 29.1845922961
-------
-Time elapsed: 437.49167013168335
-Number of chunks: 5
-k: 9
-Accuracy: 30.1150575288
-Accuracy: 27.8139069535
-Accuracy: 29.6648324162
-Accuracy: 29.3646823412
-Accuracy: 29.0145072536
-Average accuracy: 29.1945972986
-------
-Time elapsed: 448.59814620018005
-Number of chunks: 5
-k: 10
-Accuracy: 29.7148574287
-Accuracy: 28.1140570285
-Accuracy: 29.1645822911
-Accuracy: 28.8144072036
-Accuracy: 28.8144072036
-Average accuracy: 28.9244622311
-------
-Time elapsed: 421.8404767513275
+Accuracy: 0.64
+Time elapsed: 6.572238445281982
+k: 25
+Accuracy: 0.44
+Time elapsed: 6.905047178268433
 </pre>
 </div>
 </div>
@@ -14637,54 +13763,50 @@ Time elapsed: 421.8404767513275
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>3) Now repeat the exact same exercise with TF-IDF. I expect you to use TF-IDF vectorizer, but you are welcome to use your own implementation. Note, however, that sklearn-s TF-IDF definition differs slightly from Murphy's, the one we used in PS4.</p>
+<p>Our best model is when <strong>k = 1</strong> with an accuracy of 1.0. Accuracy decreases as we increase k.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="1.2-TF-IDF">1.2 TF-IDF<a class="anchor-link" href="#1.2-TF-IDF">&#182;</a></h3><p>BOW is great but could be even greater. Can we get a better result using TF-IDF? TF-IDF is simply a way how to weigh the word frequency in a more informative way.</p>
+<ol>
+<li>Implement TF-IDF transformation (without rely on existing libraries!). This involves manipulating the training and validation data matrices, nothing else needs to be done.</li>
+<li>Ensure that the cosine similarity implemented earlier also works for vectors in TF-IDF form. It should without any modifcations.</li>
+<li>Run k-NN with the cosine similarity algorithm again, using several k values. The algorithm should not need any modifcations.</li>
+<li>How accurate is BOW versus TF-IDF? How does choice of k change the results? Is BOW or TF-IDF faster to run?</li>
+</ol>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
-
-<span class="k">def</span> <span class="nf">tfidf_cross_val</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of chunks:&#39;</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;k:&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-    
-    <span class="n">chunks</span> <span class="o">=</span> <span class="n">split_data_frame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="n">accuracy_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">chunk_df</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
-        <span class="n">tmp_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">chunk_df</span><span class="p">)]</span>
-        <span class="n">X_train</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-
-        <span class="n">y_output</span> <span class="o">=</span> <span class="n">chunk_df</span><span class="o">.</span><span class="n">group</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">knn_tfidf</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;k:&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">ntrain</span> <span class="o">+</span> <span class="n">nVal</span><span class="p">):</span>
+        <span class="n">val_case</span> <span class="o">=</span> <span class="n">tfidf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         
-        <span class="c1"># initialize the vectorizer</span>
-        <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">()</span>
-        <span class="c1"># create the dictionary</span>
-        <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
-        <span class="c1"># `fit` builds the vocabulary</span>
-        <span class="c1"># transform your data into the BOW array</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-        <span class="n">words_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">())</span>
-    
-        <span class="c1"># fit knn</span>
-        <span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
-        <span class="n">neigh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_tfidf</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">cos_sim</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">val_case</span><span class="p">)))</span>
+            
+        <span class="n">ordered_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">y_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ordered_result</span><span class="p">]</span>
+        <span class="n">most_common</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">val</span><span class="p">),</span> <span class="nb">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)))[</span><span class="mi">1</span><span class="p">]</span>
         
-        
-        <span class="n">X_val</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">chunk_df</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">predicted</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
-
-        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_output</span><span class="p">,</span> <span class="n">predicted</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-        <span class="n">accuracy_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
-       
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy:&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average accuracy:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">accuracy_list</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;------&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">most_common</span><span class="p">)</span> <span class="o">==</span> <span class="n">y_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">ntrain</span><span class="p">]:</span>
+            <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy:&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">correct</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -14694,14 +13816,31 @@ Time elapsed: 421.8404767513275
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tf</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="c1">#term frequency</span>
+
+<span class="n">idf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">tf</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">))</span>
+<span class="n">idf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">idf</span><span class="p">)</span>
+
+<span class="n">tfidf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span><span class="n">idf</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">idf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tfidf</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># normalize</span>
+<span class="n">tfidf</span> <span class="o">=</span> <span class="n">tfidf</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tfidf</span><span class="o">**</span><span class="mi">22</span><span class="p">))</span>
+
+<span class="c1"># train datasets</span>
+<span class="n">train_tfidf</span> <span class="o">=</span> <span class="n">tfidf</span><span class="p">[:</span><span class="n">ntrain</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">25</span><span class="p">]:</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">tfidf_cross_val</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">knn_tfidf</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
     <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14718,127 +13857,19 @@ Time elapsed: 421.8404767513275
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Number of chunks: 5
+<pre>(19029, 1100)
+(1100, 1100)
+(1100, 19029) 
+
 k: 1
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/Users/yasmine/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:27: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Accuracy: 72.136068034
-Accuracy: 71.2356178089
-Accuracy: 70.6353176588
-Accuracy: 71.7858929465
-Accuracy: 70.4852426213
-Average accuracy: 71.2556278139
-------
-Time elapsed: 398.2660291194916
-Number of chunks: 5
-k: 2
-Accuracy: 68.7843921961
-Accuracy: 67.6338169085
-Accuracy: 67.1835917959
-Accuracy: 69.4847423712
-Accuracy: 64.9324662331
-Average accuracy: 67.603801901
-------
-Time elapsed: 383.16657519340515
-Number of chunks: 5
-k: 3
-Accuracy: 68.9344672336
-Accuracy: 67.4337168584
-Accuracy: 66.4332166083
-Accuracy: 69.9849924962
-Accuracy: 65.5327663832
-Average accuracy: 67.663831916
-------
-Time elapsed: 389.0017430782318
-Number of chunks: 5
-k: 4
-Accuracy: 68.2341170585
-Accuracy: 66.9334667334
-Accuracy: 65.2826413207
-Accuracy: 68.384192096
-Accuracy: 64.4822411206
-Average accuracy: 66.6633316658
-------
-Time elapsed: 381.80662298202515
-Number of chunks: 5
+Accuracy: 1.0
+Time elapsed: 40.82515239715576
 k: 5
-Accuracy: 67.3336668334
-Accuracy: 66.7333666833
-Accuracy: 65.6828414207
-Accuracy: 68.4842421211
-Accuracy: 64.5822911456
-Average accuracy: 66.5632816408
-------
-Time elapsed: 389.20574021339417
-Number of chunks: 5
-k: 6
-Accuracy: 66.7833916958
-Accuracy: 66.5832916458
-Accuracy: 65.6328164082
-Accuracy: 67.1335667834
-Accuracy: 65.1325662831
-Average accuracy: 66.2531265633
-------
-Time elapsed: 383.60361886024475
-Number of chunks: 5
-k: 7
-Accuracy: 66.4832416208
-Accuracy: 66.8834417209
-Accuracy: 64.132066033
-Accuracy: 67.3336668334
-Accuracy: 65.1825912956
-Average accuracy: 66.0030015008
-------
-Time elapsed: 382.8220419883728
-Number of chunks: 5
-k: 8
-Accuracy: 66.5332666333
-Accuracy: 66.0830415208
-Accuracy: 63.831915958
-Accuracy: 66.2831415708
-Accuracy: 64.8324162081
-Average accuracy: 65.5127563782
-------
-Time elapsed: 434.5470998287201
-Number of chunks: 5
-k: 9
-Accuracy: 65.2326163082
-Accuracy: 65.2826413207
-Accuracy: 63.3816908454
-Accuracy: 65.8829414707
-Accuracy: 62.6813406703
-Average accuracy: 64.4922461231
-------
-Time elapsed: 420.3932981491089
-Number of chunks: 5
-k: 10
-Accuracy: 65.0325162581
-Accuracy: 65.2826413207
-Accuracy: 63.0315157579
-Accuracy: 65.5327663832
-Accuracy: 62.6813406703
-Average accuracy: 64.312156078
-------
-Time elapsed: 432.011696100235
+Accuracy: 0.64
+Time elapsed: 40.05109643936157
+k: 25
+Accuracy: 0.44
+Time elapsed: 40.560301065444946
 </pre>
 </div>
 </div>
@@ -14850,69 +13881,36 @@ Time elapsed: 432.011696100235
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>4) Third, repeat the above using Naive Bayes. Let's stay with the BOW representation where we have word counts (unless you explicitly requested something else, you already have it from the first k-NN). Here you should 􏰀nd the optimal smoothing parameter.</p>
+<p><em>How accurate is BOW versus TF-IDF? How does choice of k change the results? Is BOW or TF-IDF faster to run?</em></p>
+<p>Accuracy appears to be the same for both models when k = 1, 5, and 25. The change in the choice of k remains to have the same pattern, where accuracy decreases as k increases. BOW is much faster to run than TD-IDF.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Are-tomatoes-fresh-or-rotten?">2. Are tomatoes fresh or rotten?<a class="anchor-link" href="#2.-Are-tomatoes-fresh-or-rotten?">&#182;</a></h2><p>Our next task is to classify the Rotten Tomatoes movie reviews. Briefly, approved critics can write reviews for movies, and evaluate the movie as "fresh" or "rotten". The webpage normally shows a short quote from each critic, and whether it was evaluated as fresh or rotten.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Load the data. Inspect it a little bit to see how it is coded and organized. How many cases are there?</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">nb_cross_val</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of chunks:&#39;</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;alpha:&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-    
-    <span class="n">chunks</span> <span class="o">=</span> <span class="n">split_data_frame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k_chunks</span><span class="p">)</span>
-    <span class="n">accuracy_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">chunk_df</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
-        <span class="n">tmp_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">chunk_df</span><span class="p">)]</span>
-        <span class="n">X_train</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">tmp_train</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-
-        <span class="n">y_output</span> <span class="o">=</span> <span class="n">chunk_df</span><span class="o">.</span><span class="n">group</span>
-        
-        <span class="c1"># initialize the vectorizer</span>
-        <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1"># create the dictionary</span>
-        <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
-        <span class="c1"># `fit` builds the vocabulary</span>
-        <span class="c1"># transform your data into the BOW array</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-        <span class="n">words_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">())</span>
-    
-        <span class="c1"># fit nb</span>
-        <span class="n">nb</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
-        <span class="n">nb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-        
-        
-        <span class="n">X_val</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">chunk_df</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">predicted</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_val</span><span class="p">)</span>
-
-        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_output</span><span class="p">,</span> <span class="n">predicted</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-        <span class="n">accuracy_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
-       
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy:&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Average accuracy:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">accuracy_list</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;------&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">nb_cross_val</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rotten</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;reviews.csv&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of cases:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rotten</span><span class="p">))</span>
+<span class="n">rotten</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -14929,371 +13927,107 @@ Time elapsed: 432.011696100235
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Number of chunks: 5
-alpha: 1
+<pre>Number of cases: 13442
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/Users/yasmine/anaconda3/lib/python3.6/site-packages/sklearn/utils/validation.py:578: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().
-  y = column_or_1d(y, warn=True)
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Accuracy: 67.047891351
-Accuracy: 63.9027877055
-Accuracy: 68.1915654039
-Accuracy: 66.6904932094
-Accuracy: 64.0457469621
-Average accuracy: 65.9756969264
-------
-Time elapsed: 104.5196008682251
-Number of chunks: 5
-alpha: 2
-Accuracy: 52.3230879199
-Accuracy: 48.820586133
-Accuracy: 55.5396711937
-Accuracy: 54.896354539
-Accuracy: 49.3924231594
-Average accuracy: 52.194424589
-------
-Time elapsed: 104.20132398605347
-Number of chunks: 5
-alpha: 3
-Accuracy: 43.1736954968
-Accuracy: 40.2430307362
-Accuracy: 48.3917083631
-Accuracy: 46.5332380272
-Accuracy: 41.815582559
-Average accuracy: 44.0314510365
-------
-Time elapsed: 102.9996452331543
-Number of chunks: 5
-alpha: 4
-Accuracy: 37.2408863474
-Accuracy: 34.5961401001
-Accuracy: 43.1736954968
-Accuracy: 40.1000714796
-Accuracy: 36.8834882059
-Average accuracy: 38.3988563259
-------
-Time elapsed: 103.53547286987305
-Number of chunks: 5
-alpha: 5
-Accuracy: 33.5239456755
-Accuracy: 31.6654753395
-Accuracy: 40.1000714796
-Accuracy: 35.9542530379
-Accuracy: 32.6661901358
-Average accuracy: 34.7819871337
-------
-Time elapsed: 106.79887294769287
-Number of chunks: 5
-alpha: 6
-Accuracy: 30.9506790565
-Accuracy: 29.0922087205
-Accuracy: 37.4553252323
-Accuracy: 33.6669049321
-Accuracy: 30.5932809149
-Average accuracy: 32.3516797713
-------
-Time elapsed: 111.79115295410156
-Number of chunks: 5
-alpha: 7
-Accuracy: 29.3781272337
-Accuracy: 27.0907791279
-Accuracy: 34.2387419585
-Accuracy: 31.0936383131
-Accuracy: 29.0922087205
-Average accuracy: 30.1786990708
-------
-Time elapsed: 102.84812116622925
-Number of chunks: 5
-alpha: 8
-Accuracy: 27.1622587563
-Accuracy: 25.3752680486
-Accuracy: 32.8806290207
-Accuracy: 28.9492494639
-Accuracy: 27.5911365261
-Average accuracy: 28.3917083631
-------
-Time elapsed: 106.15774393081665
-Number of chunks: 5
-alpha: 9
-Accuracy: 25.1608291637
-Accuracy: 23.8741958542
-Accuracy: 31.1651179414
-Accuracy: 27.0192994996
-Accuracy: 26.5189421015
-Average accuracy: 26.7476769121
-------
-Time elapsed: 105.95693278312683
-Number of chunks: 5
-alpha: 10
-Accuracy: 24.0886347391
-Accuracy: 23.1593995711
-Accuracy: 29.0922087205
-Accuracy: 26.0185847034
-Accuracy: 25.9471050751
-Average accuracy: 25.6611865618
-------
-Time elapsed: 100.29582715034485
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>5) Discuss the findings. Which model showed the best behaviour? Which one has the fastest speed? Decide which one is your best model for the last step:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The model that showed the best behavior was <strong>TF-IDF kNN</strong>, with an k of k=1. The best average accuracy score we received with this model while implementing k-fold CV with 5 k-chunks was <strong>71.26</strong>. The model that has the fastest speed from our performance was <strong>naive bayes</strong> (average speed = ~103 seconds). For the last step, we will use the former model.</p>
-<p>(Disclaimer: for the speed, I had to lower the training set size for the naive bayes model because I was running out of time for this final. The previous 2 took over an hour each to run, as shown in the times above, so I couldn't wait another hour to finish this by the deadline. My best guess is that naive bayes would still be the fastest model, just by looking at previous problem sets).</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>6) Finally, analyze you model's performance on the testing data. load your testing data and compute the final accuracy.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;test.csv&quot;</span><span class="p">)</span>
-<span class="n">test</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="n">test</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">text</span>
-<span class="n">y_train</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">group</span>
-
-<span class="c1"># initialize the vectorizer</span>
-<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="c1"># create the dictionary</span>
-<span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
-<span class="c1"># `fit` builds the vocabulary</span>
-<span class="c1"># transform your data into the BOW array</span>
-<span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-
-<span class="c1"># fit knn</span>
-<span class="n">neigh</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">algorithm</span> <span class="o">=</span> <span class="s1">&#39;brute&#39;</span><span class="p">)</span>
-<span class="n">neigh</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
-
-<span class="n">X_test</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-<span class="n">y_test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">group</span>
-<span class="n">predicted</span> <span class="o">=</span> <span class="n">neigh</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
-
-
-<span class="n">accuracy</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">predicted</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>accuracy 41.5341534153
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Sadly, even though we got a good accuracy like explained above, the accuracy for the final model was really bad. :( With more time, I could play around with this and see what else I could get.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>7) Besides the final accuracy, compare some of the misclassified cases. What do you think what and why did the model get these wrong?</p>
-<p>Note: I mean some sort of informal list of some of the misclassified cases, not a comprehensive analysis. Confusion matrix may not work well as we have 20 different groups here.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">misc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_test</span><span class="p">)[</span><span class="n">p</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_test</span> <span class="o">!=</span> <span class="n">predicted</span><span class="p">)]</span>
-<span class="n">unique</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">misc</span><span class="p">,</span> <span class="n">return_counts</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">unique</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[56]:</div>
+    <div class="prompt output_prompt">Out[17]:</div>
 
 
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
     }
 
     .dataframe tbody tr th {
         vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
     }
 </style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>0</th>
+      <th>critic</th>
+      <th>fresh</th>
+      <th>imdb</th>
+      <th>link</th>
+      <th>publication</th>
+      <th>quote</th>
+      <th>review_date</th>
+      <th>rtid</th>
+      <th>title</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>304</th>
-      <td>alt.atheism</td>
+      <th>0</th>
+      <td>Derek Adams</td>
+      <td>fresh</td>
+      <td>114709</td>
+      <td>http://www.timeout.com/film/reviews/87745/toy-...</td>
+      <td>Time Out</td>
+      <td>So ingenious in concept, design and execution ...</td>
+      <td>2009-10-04 00:00:00</td>
+      <td>9559</td>
+      <td>Toy Story</td>
     </tr>
     <tr>
-      <th>342</th>
-      <td>comp.graphics</td>
+      <th>1</th>
+      <td>Richard Corliss</td>
+      <td>fresh</td>
+      <td>114709</td>
+      <td>http://www.time.com/time/magazine/article/0,91...</td>
+      <td>TIME Magazine</td>
+      <td>The year's most inventive comedy.</td>
+      <td>2008-08-31 00:00:00</td>
+      <td>9559</td>
+      <td>Toy Story</td>
     </tr>
     <tr>
-      <th>304</th>
-      <td>comp.os.ms-windows.misc</td>
+      <th>2</th>
+      <td>David Ansen</td>
+      <td>fresh</td>
+      <td>114709</td>
+      <td>http://www.newsweek.com/id/104199</td>
+      <td>Newsweek</td>
+      <td>A winning animated feature that has something ...</td>
+      <td>2008-08-18 00:00:00</td>
+      <td>9559</td>
+      <td>Toy Story</td>
     </tr>
     <tr>
-      <th>330</th>
-      <td>comp.sys.ibm.pc.hardware</td>
+      <th>3</th>
+      <td>Leonard Klady</td>
+      <td>fresh</td>
+      <td>114709</td>
+      <td>http://www.variety.com/review/VE1117941294.htm...</td>
+      <td>Variety</td>
+      <td>The film sports a provocative and appealing st...</td>
+      <td>2008-06-09 00:00:00</td>
+      <td>9559</td>
+      <td>Toy Story</td>
     </tr>
     <tr>
-      <th>319</th>
-      <td>comp.sys.mac.hardware</td>
-    </tr>
-    <tr>
-      <th>310</th>
-      <td>comp.windows.x</td>
-    </tr>
-    <tr>
-      <th>321</th>
-      <td>misc.forsale</td>
-    </tr>
-    <tr>
-      <th>313</th>
-      <td>rec.autos</td>
-    </tr>
-    <tr>
-      <th>291</th>
-      <td>rec.motorcycles</td>
-    </tr>
-    <tr>
-      <th>265</th>
-      <td>rec.sport.baseball</td>
-    </tr>
-    <tr>
-      <th>229</th>
-      <td>rec.sport.hockey</td>
-    </tr>
-    <tr>
-      <th>217</th>
-      <td>sci.crypt</td>
-    </tr>
-    <tr>
-      <th>331</th>
-      <td>sci.electronics</td>
-    </tr>
-    <tr>
-      <th>285</th>
-      <td>sci.med</td>
-    </tr>
-    <tr>
-      <th>278</th>
-      <td>sci.space</td>
-    </tr>
-    <tr>
-      <th>315</th>
-      <td>soc.religion.christian</td>
-    </tr>
-    <tr>
-      <th>261</th>
-      <td>talk.politics.guns</td>
-    </tr>
-    <tr>
-      <th>225</th>
-      <td>talk.politics.mideast</td>
-    </tr>
-    <tr>
-      <th>289</th>
-      <td>talk.politics.misc</td>
-    </tr>
-    <tr>
-      <th>317</th>
-      <td>talk.religion.misc</td>
+      <th>4</th>
+      <td>Jonathan Rosenbaum</td>
+      <td>fresh</td>
+      <td>114709</td>
+      <td>http://onfilm.chicagoreader.com/movies/capsule...</td>
+      <td>Chicago Reader</td>
+      <td>An entertaining computer-generated, hyperreali...</td>
+      <td>2008-03-10 00:00:00</td>
+      <td>9559</td>
+      <td>Toy Story</td>
     </tr>
   </tbody>
 </table>
@@ -15309,7 +14043,219 @@ Time elapsed: 100.29582715034485
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The most misclassified group was <strong>comp.graphics</strong> from the model and data we tested on. This may be because there is not a lot of cases where this group appears in the data, or because of this there is not a lot for the model to use to train data to be predicted correctly to this group. Perhaps some of the training data for this group overlapped a lot with or were similar to other groups (perhaps other groups in the same <em>'comp'</em> prefix?)</p>
+<p>Clean the data. Retain only cases where fresh and quote are present and non-empty. Remove repeated observations (there are such in data). How many cases will be left?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rotten</span> <span class="o">=</span> <span class="n">rotten</span><span class="p">[</span><span class="n">rotten</span><span class="o">.</span><span class="n">fresh</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">]</span>
+<span class="n">rotten</span> <span class="o">=</span> <span class="n">rotten</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of cases:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rotten</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Number of cases: 12823
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Select training and validation data. You would like to split all cases into 80-20 groups.</p>
+<p>We need to find the closest training quotes for each test quote, then predict if the movie is fresh or rotten according to the quote.</p>
+<p>Following the same steps we did with the texts above:</p>
+<p>(a) Create dictionary and BOW of all quotes</p>
+<p>(b) Run k-NN with several different k's and predict if fresh or rotten. In each run, compute the accuracy.</p>
+<p>(c) Transform the data into TF-IDF form and repeat k-NN.</p>
+<p>(d) Inspect a few cases where the tomato was correctly and incorrectly predicted. Can we explain why the algorithm behaved in the way it behaved?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ntrain</span> <span class="o">=</span> <span class="mi">1500</span>
+<span class="n">nVal</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">rotten</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">123</span><span class="p">)</span>
+<span class="n">val_df</span> <span class="o">=</span> <span class="n">rotten</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">rotten</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_df</span><span class="p">)]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nVal</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">123</span><span class="p">)</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">quote</span>
+<span class="n">X_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">quote</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">fresh</span>
+<span class="n">y_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">fresh</span>
+
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">X_val</span><span class="o">.</span><span class="n">values</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we've created dictionary and BOW of all quotes, let's run k-NN with several different k's and predict if fresh or rotten. In each run, compute the accuracy.
+Essentially, we are doing the same thing we did above!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># BOW</span>
+<span class="n">train_cases</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="n">ntrain</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">25</span><span class="p">]:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">knn</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>k: 1
+Accuracy: 1.0
+Time elapsed: 16.691444873809814
+k: 5
+Accuracy: 0.7533333333333333
+Time elapsed: 17.427025318145752
+k: 25
+Accuracy: 0.6866666666666666
+Time elapsed: 16.843358755111694
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Transform the data into TF-IDF form and repeat k-NN.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TD-IDF</span>
+<span class="n">tf</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="c1"># term frequency</span>
+
+<span class="n">idf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">tf</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">))</span>
+<span class="n">idf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">idf</span><span class="p">)</span>
+
+<span class="n">tfidf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span><span class="n">idf</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">idf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tfidf</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># normalize</span>
+<span class="n">tfidf</span> <span class="o">=</span> <span class="n">tfidf</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tfidf</span><span class="o">**</span><span class="mi">22</span><span class="p">))</span>
+
+<span class="c1"># train datasets</span>
+<span class="n">train_tfidf</span> <span class="o">=</span> <span class="n">tfidf</span><span class="p">[:</span><span class="n">ntrain</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">25</span><span class="p">]:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">knn_tfidf</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time elapsed:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(6770, 1800)
+(1800, 1800)
+(1800, 6770) 
+
+k: 1
+Accuracy: 1.0
+Time elapsed: 78.05132484436035
+k: 5
+Accuracy: 0.7533333333333333
+Time elapsed: 78.02384424209595
+k: 25
+Accuracy: 0.6866666666666666
+Time elapsed: 81.88916397094727
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>What worked better: reviews or text pages? What worked better: BOW or TF-IDF?</em></p>
+<p>We can say once again that: both of our models are best when k = 1, with an accuracy of 1.0. Accuracy decreases as we increase k. BOW and TF-IDF seemed to have similar accuracies with the same k's again, just as we saw in the last section. When we compare reviews vs text pages, we see that with reviews, accuracy decreases along with k at a lesser rate than text pages, showing us that reviews may have worked better.</p>
 
 </div>
 </div>

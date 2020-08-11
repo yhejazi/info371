@@ -1,0 +1,385 @@
+---
+title: "Info 371 PS1"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1 Outliers in Different Distributions
+
+## 1.1 Normal Distribution
+
+Let's compute the variance of means: we pick n random numbers r times, and for each one we will calculate their mean. Afterwards, we'll see how the variance of means will change when we change n. For this example, we will have *n = 10* and *r = 1000*.
+
+```{r first}
+n <- 10
+r <- 1000
+
+means <- sapply(replicate(r, sapply(n, rnorm, simplify = FALSE)), mean)
+```
+
+```{r compute1, echo=FALSE}
+sample_mean <- round(mean(means), 5)
+sd <- round(sd(means), 5)
+lower <- round(quantile(means, 0.05), 5)
+upper <- round(quantile(means, 0.95), 5)
+```
+
+For *n = 10* and *r = 1000*, the mean of our sample of means is **`r sample_mean`**. We have a standard deviation of **`r sd`** and a 95% confidence region of **[`r lower`, `r upper`]**. Given what we know based on theoretical considerations, we expect the 95% CI to have a bounds of around -0.5 and 0.5 with the sample's normal distribution, and the results of the quantile functions support this.
+
+```{r compute2, echo=FALSE}
+# n = 1,000
+n2 <- n * 100
+means2 <- sapply(replicate(r, sapply(n2, rnorm, simplify = FALSE)), mean)
+sample_mean2 <- round(mean(means2), 5) # New mean is closer to 0
+sd2 <- round(sd(means2), 5)
+difference <- round(sd / sd2, 5)
+lower2 <- round(quantile(means2, 0.05), 5)
+upper2 <- round(quantile(means2, 0.95), 5)
+
+
+# n = 100,000
+n3 <- n2 * 100
+means3 <- sapply(replicate(r, sapply(n3, rnorm, simplify = FALSE)), mean)
+sample_mean3 <- round(mean(means3), 5) # New mean is closer to 0
+sd3 <- round(sd(means3), 5)
+difference2 <- round(sd2 / sd3, 5) # 10x smaller than second sd
+lower3 <- round(quantile(means3, 0.05), 5)
+upper3 <- round(quantile(means3, 0.95), 5)
+```
+
+Let's see the differences when we increase n. For *n = 1,000*, we have a mean of **`r sample_mean2`**, a standard deviation of **`r sd2`** and a 95% confidence region of **[`r lower2`, `r upper2`]**. We can start making comparisons by observing that the new mean is closer to 0. The new standard deviation is `r difference` times smaller than the first standard deviation, approximately 10x smaller (and the variance is also much lower). Finally, our 95% confidence interval is narrower because our mean values are closer to 0.
+
+For *n = 100,000*, we have a mean of **`r sample_mean3`**, a standard deviation of **`r sd3`** and a 95% confidence region of **[`r lower3`, `r upper3`]**. Unsurprisingly, we see a decrease in the mean of means, standard deviation, and 95% confidence interval.
+
+To visualize the differences in the three n sample sizes:
+
+```{r histogram, echo=FALSE}
+hist(means, col = "pink", main = paste("Histogram where n = 10"))
+abline(v = sample_mean, col = "blue")
+abline(v = lower, col = "red")
+abline(v = upper, col = "red")
+
+hist(means2, col = "pink", main = paste("Histogram where n = 1,000"))
+abline(v = sample_mean2, col = "blue")
+abline(v = lower2, col = "red")
+abline(v = upper2, col = "red")
+
+hist(means3, col = "pink", main = paste("Histogram where n = 100,000"))
+abline(v = sample_mean3, col = "blue")
+abline(v = lower3, col = "red")
+abline(v = upper3, col = "red")
+```
+
+
+## 1.2 Pareto Distribution
+
+Normal distribution has very nice properties, despite it's density function looking a little bit... nasty. But there are many things in our world that are not well approximated by normal distribution. Examples include human income, size of cities, links to webpages, popularity of actors, number of citations of researchers, size of wildfires... All of these are very inequal; there are cities that are enourmous, but most towns are small. Some researchers have hundreds of thousands of citations, but the majority has only a few. These type of outcomes can be described by Pareto distribution.
+
+First, let's explore the Pareto Distribution looking at different values of k (shape). We can notice that the shape of the distributions are right-skewed.
+
+```{r parexplore, echo=FALSE}
+library(stats4)
+library(splines)
+library(VGAM)
+
+
+k1 <- 1
+k2 <- 10
+k3 <- 100
+
+make_hist <- function(k) {
+  sample <- rpareto(10000, scale = 1, k) # where n = 10,000
+  hist(sample, col = "light blue", main = paste("Histogram where k =", k))
+  abline(v = mean(sample), col = "blue")
+}
+
+make_hist(k1)
+make_hist(k2)
+make_hist(k3)
+```
+
+
+Now let's explore the mean of pareto random numbers and how sample size affects this, as we did earlier. We will have repititions *r = 1,000*. Let's first explore with *k = 0.5*, and then *k = 2*. 
+
+### k = 0.5
+
+```{r k1, echo=FALSE}
+k1 <- 0.5
+k2 <- 2
+
+# n1
+par_means1 <- sapply(replicate(r, sapply(n, rpareto, scale = 1, k1, simplify = FALSE)), mean)
+
+par_sample_mean1 <- round(mean(par_means1), 2)
+par_sd1 <- round(sd(par_means1), 2)
+par_lower1 <- round(quantile(par_means1, 0.05), 2)
+par_upper1 <- round(quantile(par_means1, 0.95), 2)
+
+#n2
+par_means2 <- sapply(replicate(r, sapply(n2, rpareto, scale = 1, k1, simplify = FALSE)), mean)
+
+par_sample_mean2 <- round(mean(par_means2), 2)
+par_sd2 <- round(sd(par_means2), 2)
+par_difference <- round(par_sd1 / par_sd2, 2)
+par_lower2 <- round(quantile(par_means2, 0.05), 2)
+par_upper2 <- round(quantile(par_means2, 0.95), 2)
+
+#n3
+par_means3 <- sapply(replicate(r, sapply(n3, rpareto, scale = 1, k1, simplify = FALSE)), mean)
+
+par_sample_mean3 <- round(mean(par_means3), 2)
+par_sd3 <- round(sd(par_means3), 2)
+par_difference2 <- round(par_sd2 / par_sd3, 2)
+par_lower3 <- round(quantile(par_means3, 0.05), 2)
+par_upper3 <- round(quantile(par_means3, 0.95), 2)
+```
+
+
+| Sample Size   | Mean                 | Standard Deviation | 95% CI                          |
+|:------------- |:---------------------|:-------------------|:--------------------------------|
+| n = 10        | `r par_sample_mean1` | `r par_sd1`        |[`r par_lower1`, `r par_upper1`] |
+| n = 1000      | `r par_sample_mean2` | `r par_sd2`        |[`r par_lower2`, `r par_upper2`] |
+| n = 100000    | `r par_sample_mean3` | `r par_sd3`        |[`r par_lower3`, `r par_upper3`] |
+
+
+
+### k = 2
+
+```{r k2, echo=FALSE}
+#n1
+par2_means1 <- sapply(replicate(r, sapply(n, rpareto, scale = 1, k2, simplify = FALSE)), mean)
+
+par2_sample_mean1 <- round(mean(par2_means1), 5)
+par2_sd1 <- round(sd(par2_means1), 5)
+par2_lower1 <- round(quantile(par2_means1, 0.05), 5)
+par2_upper1 <- round(quantile(par2_means1, 0.95), 5)
+
+#n2
+par2_means2 <- sapply(replicate(r, sapply(n2, rpareto, scale = 1, k2, simplify = FALSE)), mean)
+
+par2_sample_mean2 <- round(mean(par2_means2), 5)
+par2_sd2 <- round(sd(par2_means2), 5)
+par2_difference <- par2_sd1 / par2_sd2
+par2_lower2 <- round(quantile(par2_means2, 0.05), 5)
+par2_upper2 <- round(quantile(par2_means2, 0.95), 5)
+
+#n3
+par2_means3 <- sapply(replicate(r, sapply(n3, rpareto, scale = 1, k2, simplify = FALSE)), mean)
+
+par2_sample_mean3 <- round(mean(par2_means3), 5)
+par2_sd3 <- round(sd(par2_means3), 5)
+par2_difference2 <- round(par2_sd2 / par2_sd3, 5)
+par2_lower3 <- round(quantile(par2_means3, 0.05), 5)
+par2_upper3 <- round(quantile(par2_means3, 0.95), 5)
+
+```
+
+| Sample Size   | Mean                 | Standard Deviation | 95% CI                            |
+|:------------- |:---------------------|:-------------------|:----------------------------------|
+| n = 10        | `r par2_sample_mean1`| `r par2_sd1`       |[`r par2_lower1`, `r par2_upper1`] |
+| n = 1000      | `r par2_sample_mean2`| `r par2_sd2`       |[`r par2_lower2`, `r par2_upper2`] |
+| n = 100000    | `r par2_sample_mean3`| `r par2_sd3`       |[`r par2_lower3`, `r par2_upper3`] |
+
+
+We see a big difference between pareto and normal distribution, but there's also a huge difference when comparing k<1 and k>1. In normal distribution, we noticed that as sample size increases, everything (mean of means, sd, and 95% CI) gets closer to 0. When *k < 1*, we see a pattern of these computations scaling up as n increases, very unlike our earlier patterns of changing relative to 0. But with *k > 1*, we see a pattern where the mean and standard deviation move closer to 0 just as normal distribution did. In the normal distribution and pareto distribution for *k > 1*, the CI narrows as sample size increases. However, the CI moved closer to 2 for pareto.
+
+
+
+
+# 2 Linear Transformations of Images
+
+## 2.1 Rotate Matrices
+
+Demonstrating rotation of object matrix A:
+
+``` {r objectA, echo=FALSE}
+
+A <- matrix(c(0, 0,
+              0, 2,
+              1, 1), 3, 2, byrow = TRUE)
+
+A
+
+plot(A[,1], A[,2], type="l", asp=1, main=paste("Matrix A"))
+
+```
+
+We can use the following function to create rotation matrix with a given alpha (angle) and then multiply this matrix to our object matrix for rotation
+
+``` {r rotf}
+Rot <- function(alpha) {
+  a <-alpha*pi/180
+  matrix(c(cos(a), sin(a),
+           -sin(a), cos(a)), 2, 2)
+}
+```
+
+For example, if we want to rotate our object A 45 degrees clockwise, we can call `A %*% Rot(45)`.
+
+``` {r rotate, echo=FALSE}
+B <- A %*% Rot(45)
+plot(B[,1], B[,2], type="l", asp=1, main=paste("Matrix A Rotated 45 Degrees"))
+
+C <- A %*% Rot(-225)
+plot(C[,1], C[,2], type="l", asp=1, main=paste("Matrix A Rotated -225 Degrees"))
+
+D <- A %*% Rot(355)
+plot(D[,1], D[,2], type="l", asp=1, main=paste("Matrix A Rotated 355 Degrees"))
+```
+
+
+Now let's create our own object matrix *M* and demonstrate rotation again on it.
+
+``` {r objectM, echo=FALSE}
+M <- matrix(c(0, 0,
+              1, 2,
+              2, 2,
+              0, 1,
+              0, 0), 5, 2, byrow = TRUE)
+
+print(M) # print your object in assignment
+
+plot(M[,1], M[,2], type="l", asp=1, main="Matrix M")
+
+N <- M %*% Rot(90)
+plot(N[,1], N[,2], type="l", asp=1, main="Matrix M Rotated 90 Degrees")
+
+P <- M %*% Rot(270)
+plot(P[,1], P[,2], type="l", asp=1, main="Matrix M Rotated 270 Degrees")
+
+```
+
+## 2.2 Rotate Data
+
+Using the data from *crazy_hat.tsv*, let's create a plot with lines connecting elements of the same group. We will use the following helper function to plot our image with any rotated crazyhat data.
+
+``` {r data, echo=FALSE}
+data <- read.table('crazy_hat.tsv', header = TRUE)
+
+```
+
+``` {r plot}
+plot_crazyhat <- function(data) {
+  outline <- data[data["group"] == "outline",]
+  leye <- data[data["group"] == "leye",]
+  reye <- data[data["group"] == "reye",]
+  mouth <- data[data["group"] == "mouth",]
+  
+  plot(data[, 1], data[, 2])
+  lines(outline)
+  lines(leye)
+  lines(reye)
+  lines(mouth)
+}
+```
+
+Let's see the what the crazyhat plot looks like!
+
+``` {r original, echo=FALSE}
+plot_crazyhat(data)
+```
+
+To rotate this plot, we will first make the desired columns of the data into a matrix. We will then rotate that matrix, and then convert the matrix back to a dataframe. We can then plot the dataframe and again connect elements of the same group to complete the image rotation. Here is the helper function that shows this process:
+
+``` {r rotatef}
+rotate <- function(data, x) {
+  rotated <- matrix(data.matrix(data[, 1:2], rownames.force = NA), 15, 2) %*% Rot(x)
+  new_data <- data.frame(rotated)
+  group <- data[, 3]
+  new_data$group <- group
+  new_data
+}
+```
+
+Let's see some rotations below.
+
+**Image rotated by 90:**
+``` {r hatrotate1, echo=FALSE}
+new_data <- rotate(data, 90)
+plot_crazyhat(new_data)
+```
+
+
+**Image rotated by 180:**
+``` {r hatrotate2, echo=FALSE}
+new_data <- rotate(data, 180)
+plot_crazyhat(new_data)
+```
+
+## 2.3 Flip and Stretch
+
+Let's show a few more simple image tranformations: **flipping** and **stretching**!
+
+To **flip** a matrix by x (mirroring the image on y-axis), we need to multiply that matrix by the following matrix
+
+[-1, 1
+  0, 1]
+  
+We use the helper function `flipx` to flip any given matrix *a* along the y-axis. The flipping is demonstrated below.
+
+``` {r flipx}
+flipx <- function(a) {
+  a %*% matrix(c(-1, 0,
+                  0, 1), 2, 2, byrow = TRUE)
+}
+```
+
+``` {r flipdemo, echo=FALSE}
+Q <- matrix(c(0, 0,
+              2, 1,
+              3, 2,
+              1, 2,
+              0, 0), 5, 2, byrow = TRUE)
+
+plot(Q[,1], Q[,2], type="l", asp=1, main="Matrix Q")
+
+R <- flipx(Q)
+plot(R[,1], R[,2], type="l", asp=1, main="Flipped Matrix Q")
+```
+
+To **stretch** a matrix's y elements by amount *s*, we must multiply that matrix by the following matrix:
+
+[1, 0
+ 0, s]
+ 
+The helper function `stretchy` allows us to stretch y elements of any given matrix *a* by a given amount *s*.
+
+``` {r stretchy}
+stretchy <- function(a, s) {
+  a %*% matrix(c(1, 0,
+                 0, as.numeric(s)), 2, 2, byrow = TRUE)
+}
+```
+
+``` {r stretchdemo, echo=FALSE}
+S <- stretchy(Q, 2)
+plot(S[,1], S[,2], type="l", asp=1, main="Stretched Matrix Q (s=2)")
+```
+
+Finally, we can combine some of these simple image transformations! For example, if we want to take our *crazyhat* image again and **rotate it 45 degrees, then stretch it's y elements 2x**, we get this:
+
+**Original**
+``` {r origin, echo=FALSE}
+plot_crazyhat(data)
+```
+
+**Distorted**
+``` {r distorted, echo=FALSE}
+rotated_data <- rotate(data, 45)
+rotated_data <- matrix(data.matrix(rotated_data[, 1:2], rownames.force = NA), 15, 2)
+
+stretched_data <- data.frame(stretchy(rotated_data, 2))
+stretched_data$group <- data[, 3]
+
+plot_crazyhat(stretched_data)
+```
+
+
+Above we discussed the transformations by right-multiplication. How do we transform the problem in a way that we can pre-multiply instead of post-multiply in order to perform an operation? Something like A^45 = R(45) \* A. What will the left-hand rotation matrix R look like? We can do this through matrix transpose:
+
+**t(t(Rot(45) \* t(A))**
